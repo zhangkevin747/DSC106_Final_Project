@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Greatest Differences Between Temperature and Activity for Female Mice Occur During Estrus</title>
+  <!-- Using D3 v5 -->
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+  <style>
+    body { font-family: sans-serif; margin-left:15%; margin-right:15%;}
+    #controls { margin: 10px 0; }
+    #controls label { margin-right: 20px; }
+    #cycleControls { margin: 10px 0; }
+    button { margin-left: 20px; }
+    .tooltip {
+      position: absolute;
+      text-align: center;
+      padding: 4px;
+      font: 12px sans-serif;
+      background: lightsteelblue;
+      border: 0px;
+      border-radius: 4px;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Project 3</h1>
+  <p>By Hao Zhang, Kevin Zhang, Sarah He</p> 
+
+  <!-- Controls -->
+  <div id="controls">
+    <label><input type="checkbox" id="showTemp" checked> Show Temperature</label>
+    <label><input type="checkbox" id="showAct" checked> Show Activity</label>
+    <button id="resetZoom">Reset Zoom</button>
+  </div>
+  
+  <!-- Cycle Selection Dropdown -->
+  <div id="cycleControls">
+    <label for="cycleSelect"><strong>Select Estrous Cycle:</strong></label>
+    <select id="cycleSelect"></select>
+  </div>
+  
+  <!-- Correlation Results -->
+  <div id="correlationResults" style="margin: 10px 0;"></div>
+  
+  <!-- Chart container -->
+  <div id="chart"></div>
+  
+  <script>
+  document.addEventListener("DOMContentLoaded", function() {
+    Promise.all([
+      d3.json('formatted_fem_temp.json'),
+      d3.json('formatted_fem_act.json')
+    ]).then(function(files) {
+      var femTempData = files[0],
+          femActData  = files[1];
+      
+      // Checkbox selections.
+      var showTempCheckbox = d3.select("#showTemp");
+      var showActCheckbox  = d3.select("#showAct");
+
+      // Settings.
+      var cycleLength = 5760,  // 4 days in minutes
+          binWidth = 10;       // 10-minute bins
+      
+      // Process data.
+      femTempData.forEach(function(d) {
+        d.minuteNum = +d.Minute.replace("Minute ", "");
+        d.cycleNum = Math.floor(d.minuteNum / cycleLength) + 1;
+      });
+      femActData.forEach(function(d) {
+        d.minuteNum = +d.Minute.replace("Minute ", "");
+        d.cycleNum = Math.floor(d.minuteNum / cycleLength) + 1;
+      });
+      
+      // Unique cycles.
+      var cycles = Array.from(new Set(femTempData.map(d => d.cycleNum))).sort((a, b) => a - b);
+      
+      // Populate dropdown.
+      var cycleSelect = d3.select("#cycleSelect");
+      cycleSelect.append("option")
+        .attr("value", "All")
+        .text("All Cycles");
+      cycles.forEach(function(cycle) {
+        cycleSelect.append("option")
+          .attr("value", cycle)
+          .text("Cycle " + cycle);
+      });
+      
+      // BINNING FUNCTION
+      function binData(data, valueKey, selectedCycle) {
+        var filtered = (selectedCycle === "All") 
+                       ? data 
+                       : data.filter(d => d.cycleNum === +selectedCycle);
+        var binned = d3.nest()
+          .key(function(d) { return Math.floor(d.minuteNum / binWidth) * binWidth; })
+          .rollup(function(values) {
+            return d3.mean(values, d => d[valueKey]);
+          })
+          .entries(filtered)
+          .map(function(d) { return { binAbs: +d.key, avg: d.value }; })
+          .sort(function(a, b) { return a.binAbs - b.binAbs; });
+        return binned;
+      }
+      
+      var binnedFemTemp, binnedFemAct;
+      function updateBinnedData(selectedCycle) {
+        binnedFemTemp = binData(femTempData, "Temperature", selectedCycle);
+        binnedFemAct  = binData(femActData,  "Activity",    selectedCycle);
+      }
+      
+      var selectedCycle = cycleSelect.property("value");
+      updateBinnedData(selectedCycle);
+      
+      // Chart dimensions.
+      var margin = { top: 60, right: 80, bottom: 140, left: 80 },
+          width  = 1000 - margin.left - margin.right,
+          height = 500 - margin.top - margin.bottom;
+      
+      // Create outer SVG.
+      var outerSvg = d3.select("#chart")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom);
+      
+      // Main group.
+      var svg = outerSvg.append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+      
+      // Define clip path.
+      svg.append("defs").append("clipPath")
+        .attr("id", "clip")
+        .append("rect")
+        .attr("width", width)
+        .attr("height", height);
+      
+      // Groups for backgrounds and lines (all clipped).
+      var highlightGroup = svg.append("g")
+                              .attr("clip-path", "url(#clip)");
+      var diffGroup      = svg.append("g")
+                              .attr("clip-path", "url(#clip)");
+      var linesGroup     = svg.append("g")
+                              .attr("clip-path", "url(#clip)");
+      
+      // Title.
+      svg.append("text")
+        .attr("x", width/2)
+        .attr("y", -20)
+        .attr("text-anchor", "middle")
+        .style("font-size", "18px")
+        .style("font-weight", "bold")
+        .text("Greatest Differences Between Temperature and Activity for Female Mice Occur During Estrus");
+      
+      // Axes groups.
+      var xAxisG = svg.append("g")
+        .attr("class", "x-axis")
+        .attr("transform", "translate(0," + height + ")");
+      var yAxisLeftG = svg.append("g").attr("class", "y-axis-left");
+      var yAxisRightG = svg.append("g")
+        .attr("class", "y-axis-right")
+        .attr("transform", "translate(" + width + ",0)");
+      
+      // X-scale and axis.
+      var xScaleOriginal = d3.scaleLinear().range([0, width]);
+      
+      // *** Define y-scales for Temperature and Activity ***
+      var yTemp = d3.scaleLinear().range([height, 0]);
+      var yAct  = d3.scaleLinear().range([height, 0]);
+      
+      var currentX = xScaleOriginal.copy();
+      function formatTick(d) {
+        var day = Math.floor(d / 1440) + 1;
+        var minutesIntoDay = d % 1440;
+        var hours = Math.floor(minutesIntoDay / 60);
+        var mins = minutesIntoDay % 60;
+        return "Day " + day + " " + hours + ":" + (mins < 10 ? "0" + mins : mins);
+      }
+      var xAxis = d3.axisBottom(currentX).ticks(10).tickFormat(formatTick);
+      xAxisG.call(xAxis);
+      
+      // Axis labels.
+      svg.append("text")
+        .attr("transform", "translate(" + (width/2) + " ," + (height + margin.bottom - 90) + ")")
+        .style("text-anchor", "middle")
+        .style("font-weight", "bold")
+        .text("Experiment Time (Days:Hours)");
+      svg.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", -margin.left + 20)
+        .attr("x", -height/2)
+        .style("text-anchor", "middle")
+        .style("font-weight", "bold")
+        .text("Temperature (°C)");
+      svg.append("text")
+        .attr("transform", "translate(" + (width + margin.right/2) + "," + (height/2) + ") rotate(90)")
+        .style("text-anchor", "middle")
+        .style("font-weight", "bold")
+        .text("Activity");
+      
+      // Draw data lines inside the clipped group.
+      var femaleTempPath = linesGroup.append("path")
+        .attr("fill", "none")
+        .attr("stroke", "darkred")
+        .attr("stroke-width", 2);
+      var femaleActPath = linesGroup.append("path")
+        .attr("fill", "none")
+        .attr("stroke", "darkred")
+        .attr("stroke-width", 2)
+        .attr("stroke-dasharray", "4,4");
+      
+      // Legend Group (increased height to accommodate extra entries).
+      var legend = svg.append("g")
+        .attr("class", "legend")
+        .attr("transform", "translate(" + (width - 220) + ",10)");
+      
+      // Legend background rectangle.
+      legend.append("rect")
+        .attr("width", 210)
+        .attr("height", 100)
+        .attr("fill", "white")
+        .attr("stroke", "black");
+      
+      // Shaded regions legend.
+      // Total Estrus: Wider light blue region.
+      legend.append("rect")
+        .attr("x", 10)
+        .attr("y", 10)
+        .attr("width", 20)
+        .attr("height", 10)
+        .attr("fill", "rgba(0,0,255,0.1)");
+      legend.append("text")
+        .attr("x", 40)
+        .attr("y", 20)
+        .text("Total Estrus")
+        .attr("alignment-baseline", "middle")
+        .style("font-size", "12px");
+      
+      // Max Difference: Narrower orange region.
+      legend.append("rect")
+        .attr("x", 10)
+        .attr("y", 30)
+        .attr("width", 20)
+        .attr("height", 10)
+        .attr("fill", "rgba(255,165,0,0.2)");
+      legend.append("text")
+        .attr("x", 40)
+        .attr("y", 40)
+        .text("Max Difference")
+        .attr("alignment-baseline", "middle")
+        .style("font-size", "12px");
+      
+      // Line style legend for Temperature (solid red line).
+      legend.append("line")
+        .attr("x1", 10)
+        .attr("x2", 30)
+        .attr("y1", 60)
+        .attr("y2", 60)
+        .attr("stroke", "darkred")
+        .attr("stroke-width", 2);
+      legend.append("text")
+        .attr("x", 40)
+        .attr("y", 60)
+        .attr("alignment-baseline", "middle")
+        .style("font-size", "12px")
+        .text("Temperature (Solid)");
+      
+      // Line style legend for Activity (dotted red line).
+      legend.append("line")
+        .attr("x1", 10)
+        .attr("x2", 30)
+        .attr("y1", 80)
+        .attr("y2", 80)
+        .attr("stroke", "darkred")
+        .attr("stroke-width", 2)
+        .attr("stroke-dasharray", "4,4");
+      legend.append("text")
+        .attr("x", 40)
+        .attr("y", 80)
+        .attr("alignment-baseline", "middle")
+        .style("font-size", "12px")
+        .text("Activity (Dotted)");
+      
+      // Primary background shading:
+      // For each cycle, shade from the beginning of day 2 (minute 1440) to the beginning of day 3 (minute 2880).
+      function updateBackground() {
+        var selVal = cycleSelect.property("value");
+        var bgData = [];
+        if (selVal === "All") {
+          cycles.forEach(function(c) {
+            var cycleStart = (c - 1) * cycleLength;
+            bgData.push({ start: cycleStart + 1440, end: cycleStart + 2880 });
+          });
+        } else {
+          var c = +selVal;
+          var cycleStart = (c - 1) * cycleLength;
+          bgData.push({ start: cycleStart + 1440, end: cycleStart + 2880 });
+        }
+        var rects = highlightGroup.selectAll("rect.background")
+          .data(bgData, function(d) { return d.start; });
+        rects.enter()
+          .append("rect")
+          .attr("class", "background")
+          .merge(rects)
+          .attr("x", function(d) { return currentX(d.start); })
+          .attr("width", function(d) { return currentX(d.end) - currentX(d.start); })
+          .attr("y", 0)
+          .attr("height", height)
+          .attr("fill", "rgba(0,0,255,0.1)");
+        rects.exit().remove();
+      }
+      
+      // Second shaded region:
+      // For each cycle, on day 2 shade from hour 10 to 16.
+      // That is from minute 2040 (1440+600) to 2400 (1440+960) relative to cycle start.
+      function updateDiffBackground() {
+        var selVal = cycleSelect.property("value");
+        var diffData = [];
+        if (selVal === "All") {
+          cycles.forEach(function(c) {
+            var cycleStart = (c - 1) * cycleLength;
+            diffData.push({ start: cycleStart + 2040, end: cycleStart + 2400 });
+          });
+        } else {
+          var c = +selVal;
+          var cycleStart = (c - 1) * cycleLength;
+          diffData.push({ start: cycleStart + 2040, end: cycleStart + 2400 });
+        }
+        var rects = diffGroup.selectAll("rect.diff")
+          .data(diffData, function(d) { return d.start; });
+        rects.enter()
+          .append("rect")
+          .attr("class", "diff")
+          .merge(rects)
+          .attr("x", function(d) { return currentX(d.start); })
+          .attr("width", function(d) { return currentX(d.end) - currentX(d.start); })
+          .attr("y", 0)
+          .attr("height", height)
+          .attr("fill", "rgba(255,165,0,0.2)");
+        rects.exit().remove();
+      }
+      
+      // Global variables for z-score computation.
+      var tempMean = 0, tempStd = 1, actMean = 0, actStd = 1;
+      
+      // Update chart.
+      function updateChart() {
+        var selVal = cycleSelect.property("value");
+        updateBinnedData(selVal);
+        var currentFemaleTempData = (showTempCheckbox.property("checked")) ? binnedFemTemp : [];
+        var currentFemaleActData  = (showActCheckbox.property("checked"))  ? binnedFemAct  : [];
+        
+        if (selVal === "All") {
+          var maxCycle = d3.max(cycles);
+          xScaleOriginal.domain([0, maxCycle * cycleLength]);
+        } else {
+          var c = +selVal;
+          xScaleOriginal.domain([(c - 1) * cycleLength, c * cycleLength]);
+        }
+        currentX = xScaleOriginal.copy();
+        xAxisG.transition().duration(750).call(xAxis.scale(currentX));
+        
+        // Y-scale for Temperature.
+        var tempVals = currentFemaleTempData.map(function(d) { return d.avg; });
+        if (!tempVals.length) tempVals = [36,39];
+        var tempExtent = d3.extent(tempVals),
+            tempPad = (tempExtent[1] - tempExtent[0]) * 0.1;
+        yTemp.domain([tempExtent[0] - tempPad, tempExtent[1] + tempPad]);
+        
+        // Y-scale for Activity.
+        var actVals = currentFemaleActData.map(function(d) { return d.avg; });
+        if (!actVals.length) actVals = [0,70];
+        var actExtent = d3.extent(actVals),
+            actPad = (actExtent[1] - actExtent[0]) * 0.1;
+        yAct.domain([actExtent[0] - actPad, actExtent[1] + actPad]);
+        
+        yAxisLeftG.transition().duration(750).call(d3.axisLeft(yTemp));
+        yAxisRightG.transition().duration(750).call(d3.axisRight(yAct));
+        
+        // Update z-score statistics.
+        tempMean = d3.mean(currentFemaleTempData, function(d) { return d.avg; }) || 0;
+        tempStd = d3.deviation(currentFemaleTempData, function(d) { return d.avg; }) || 1;
+        actMean  = d3.mean(currentFemaleActData, function(d) { return d.avg; })  || 0;
+        actStd   = d3.deviation(currentFemaleActData, function(d) { return d.avg; }) || 1;
+        
+        updateLines(currentFemaleTempData, currentFemaleActData);
+        updateBackground();
+        updateDiffBackground();
+      }
+      
+      // Redraw lines.
+      function updateLines(tempData, actData) {
+        function lineGenX(d) { return currentX(d.binAbs); }
+        if (tempData.length) {
+          femaleTempPath.transition().duration(750)
+            .attr("d", d3.line()
+              .x(lineGenX)
+              .y(function(d) { return yTemp(d.avg); })
+              (tempData))
+            .style("opacity", 1);
+        } else {
+          femaleTempPath.transition().duration(750).style("opacity", 0);
+        }
+        if (actData.length) {
+          femaleActPath.transition().duration(750)
+            .attr("d", d3.line()
+              .x(lineGenX)
+              .y(function(d) { return yAct(d.avg); })
+              (actData))
+            .style("opacity", 1);
+        } else {
+          femaleActPath.transition().duration(750).style("opacity", 0);
+        }
+      }
+      
+      // -------------------------------
+      // TOOLTIP & DOTS FOR HOVER EVENTS
+      // -------------------------------
+      
+      // Create tooltip div.
+      var tooltip = d3.select("body").append("div")
+          .attr("class", "tooltip")
+          .style("opacity", 0);
+      
+      // Append dot markers for each line.
+      var tempDot = svg.append("circle")
+          .attr("class", "temp-dot")
+          .attr("r", 5)
+          .attr("fill", "darkred")
+          .style("display", "none");
+      var actDot = svg.append("circle")
+          .attr("class", "act-dot")
+          .attr("r", 5)
+          .attr("fill", "darkred")
+          .style("display", "none");
+      
+      // Overlay rectangle for capturing mouse events.
+      var overlay = svg.append("rect")
+          .attr("class", "overlay")
+          .attr("width", width)
+          .attr("height", height)
+          .style("fill", "none")
+          .style("pointer-events", "all")
+          .on("mousemove", mousemove)
+          .on("mouseout", mouseout)
+          .on("click", function() {
+            var selVal = cycleSelect.property("value");
+            var c = (selVal === "All") ? 1 : +selVal;
+            var cycleStart = (c - 1) * cycleLength;
+            xScaleOriginal.domain([cycleStart + 2040, cycleStart + 2400]);
+            currentX = xScaleOriginal.copy();
+            xAxisG.transition().duration(750).call(xAxis.scale(currentX));
+            updateLines(binnedFemTemp, binnedFemAct);
+            updateBackground();
+            updateDiffBackground();
+            d3.select("#correlationResults").html("");
+          });
+      
+      // Mousemove handler: update dots and tooltip with absolute difference in z-scores.
+      function mousemove() {
+          var event = d3.event;
+          var mousePos = d3.mouse(this);
+          var x0 = currentX.invert(mousePos[0]);
+          var bisect = d3.bisector(function(d) { return d.binAbs; }).left;
+          var i = bisect(binnedFemTemp, x0);
+          var dTemp = binnedFemTemp[i] || binnedFemTemp[binnedFemTemp.length - 1];
+          var dAct  = binnedFemAct[i]  || binnedFemAct[binnedFemAct.length - 1];
+          
+          // Compute z-scores.
+          var zTemp = (dTemp && tempStd !== 0) ? (dTemp.avg - tempMean) / tempStd : 0;
+          var zAct  = (dAct  && actStd  !== 0) ? (dAct.avg  - actMean)  / actStd  : 0;
+          var absDiff = Math.abs(zTemp - zAct);
+          
+          // Update dot positions.
+          if (showTempCheckbox.property("checked") && dTemp) {
+              tempDot.attr("cx", currentX(dTemp.binAbs))
+                     .attr("cy", yTemp(dTemp.avg))
+                     .style("display", null);
+          } else {
+              tempDot.style("display", "none");
+          }
+          if (showActCheckbox.property("checked") && dAct) {
+              actDot.attr("cx", currentX(dAct.binAbs))
+                    .attr("cy", yAct(dAct.avg))
+                    .style("display", null);
+          } else {
+              actDot.style("display", "none");
+          }
+          
+          // Update tooltip content and position next to the cursor.
+          tooltip.style("opacity", 1)
+            .html("Absolute Z Score Difference: " + absDiff.toFixed(2) +
+                  "<br>Temperature Z Score: " + zTemp.toFixed(2) +
+                  "<br>Activity Z Score: " + zAct.toFixed(2))
+            .style("left", (event.pageX + 10) + "px")
+            .style("top", (event.pageY + 10) + "px");
+      }
+      
+      function mouseout() {
+          tooltip.style("opacity", 0);
+          tempDot.style("display", "none");
+          actDot.style("display", "none");
+      }
+      
+      // Reset Zoom.
+      d3.select("#resetZoom").on("click", function() {
+        var selVal = cycleSelect.property("value");
+        if (selVal === "All") {
+          var maxCycle = d3.max(cycles);
+          xScaleOriginal.domain([0, maxCycle * cycleLength]);
+        } else {
+          var c = +selVal;
+          xScaleOriginal.domain([(c - 1) * cycleLength, c * cycleLength]);
+        }
+        currentX = xScaleOriginal.copy();
+        xAxisG.transition().duration(750).call(xAxis.scale(currentX));
+        updateLines(binnedFemTemp, binnedFemAct);
+        updateBackground();
+        updateDiffBackground();
+        d3.select("#correlationResults").html("");
+      });
+      
+      cycleSelect.on("change", function() {
+        updateChart();
+        d3.select("#correlationResults").html("");
+      });
+      
+      showTempCheckbox.on("change", updateChart);
+      showActCheckbox.on("change", updateChart);
+      
+      // Initial draw.
+      updateChart();
+      
+      // Add subtitle at the bottom right of the graph.
+      svg.append("text")
+         .attr("x", width)
+         .attr("y", height + 50)
+         .attr("text-anchor", "end")
+         .style("fill", "gray")
+         .style("font-size", "12px")
+         .text("*Data aggregated from 13 female mice.");
+      svg.append("text")
+         .attr("x", width)
+         .attr("y", height + 70)
+         .attr("text-anchor", "end")
+         .style("fill", "gray")
+         .style("font-size", "12px")
+         .text("*Click to zoom in for more detail. ");
+      
+    }).catch(function(error) {
+      console.error("Error loading JSON data:", error);
+    });
+  });
+  </script>
+
+  <h1>Write Up</h1>
+  <p>Our visualization explores the relationship between temperature and activity levels in female mice over a 14-day period, motivated by the biological significance of estrous cycles. By focusing on female mice, we highlight potential correlations between temperature fluctuations, activity levels, and estrous stages. Our target audience includes researchers and students studying mice behavior who may benefit from insights into activity regulation. Understanding these patterns can inform studies on how hormonal changes affect temperature regulation and activity levels. For example, researchers may want to investigate whether specific estrous stages correspond with significant shifts in behavior.
+    <br><br>
+    To effectively communicate these relationships, we designed a dual-axis line plot with solid lines for temperature and dashed lines for activity levels. A dual-axis approach was chosen to allow for easier comparison of trends between the two variables, as separating them would make it more difficult to assess how they relate to each other. We used background colors to highlight key periods: light blue indicates estrus stages in each cycle, while orange marks the range with the greatest difference between activity and temperature. This helps viewers quickly identify periods of interest and assess how temperature and activity fluctuations align with these phases. We selected colors with high contrast to enhance readability while reducing visual strain, and a clear legend documents these choices.
+    <br><br>
+    Specifically, we quantified these differences through the absolute difference of z-scores between temperature and activity, ensuring that both variables are normalized and comparable despite having different units. Our analysis revealed that periods with a larger difference between the two z-scored variables tend to coincide with expected estrous stages.
+    <br><br>
+    We incorporated interactivity to allow users to engage more deeply with the data. Through a drop-down menu, users can select which of the four estrous cycles to focus on. The user also has the option to only view temperature data or only activity data if they would like to. After clicking on the plot, it will zoom into the highlighted area of each cycle. When hovering over the plot, a tooltip appears displaying the difference in z-scores for temperature and activity, providing insights into the magnitude of variation at any given time point. These interactive features help users tailor their analysis to their specific research questions, improving the overall exploration and interpretability of the data.
+    <br><br>
+    All three team members (Hao, Sarah, Kevin) collaborated on brainstorming the final product. Hao and Kevin developed the interactive D3 graphs, ensuring they were visually engaging and user-friendly, while Sarah put together the GitHub page and wrote the project writeup. Our project went through multiple iterations. Initially, we included male mice data but later removed it to maintain clarity. We also refined the zoom functionality, shifting from allowing users to zoom anywhere to focusing on specific areas, guiding attention to key insights. Overall, our visualization effectively captures the interplay between temperature and activity levels in female mice, demonstrating a clear correlation with estrous cycles. 
+    </p>
+
+</body>
+</html>

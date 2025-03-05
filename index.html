@@ -2,66 +2,199 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Greatest Differences Between Temperature and Activity for Female Mice Occur During Estrus</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comparison of Vital Signs between Survivors and Non-Survivors of Exploratory Laproscopy</title>
   <!-- Using D3 v5 -->
   <script src="https://d3js.org/d3.v5.min.js"></script>
   <style>
-    body { font-family: sans-serif; margin-left:15%; margin-right:15%;}
-    #controls { margin: 10px 0; }
-    #controls label { margin-right: 20px; }
-    #cycleControls { margin: 10px 0; }
-    button { margin-left: 20px; }
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      margin: 0;
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+      color: #333;
+      line-height: 1.6;
+    }
+    
+    h1 {
+      color: #2c3e50;
+      margin-bottom: 5px;
+      font-size: 1.8rem;
+    }
+    
+    .authors {
+      color: #7f8c8d;
+      margin-top: 0;
+      margin-bottom: 30px;
+      font-style: italic;
+    }
+    
+    #controls { 
+      margin: 20px 0;
+      padding: 15px;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    #controls label { 
+      margin-right: 10px;
+      font-weight: bold;
+    }
+    
+    select {
+      padding: 8px 12px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+      background-color: white;
+      font-size: 14px;
+      min-width: 200px;
+    }
+    
+    #chart {
+      position: relative;
+      margin: 20px 0;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 15px;
+      overflow: hidden;
+    }
     
     .tooltip {
       position: absolute;
-      text-align: center;
-      padding: 4px;
-      font: 12px sans-serif;
-      background: lightsteelblue;
-      border: 0px;
+      text-align: left;
+      padding: 10px;
+      font: 14px sans-serif;
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid #ddd;
       border-radius: 4px;
       pointer-events: none;
-      opacity: 0; // Initially hidden
-      z-index: 10; // Ensure it appears above other elements
+      opacity: 0;
+      z-index: 10;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      transition: opacity 0.3s;
+    }
+    
+    .tooltip-title {
+      font-weight: bold;
+      margin-bottom: 5px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 5px;
+    }
+    
+    .tooltip-group {
+      margin-bottom: 8px;
+    }
+    
+    .tooltip-group-title {
+      font-weight: bold;
+      color: #333;
+    }
+    
+    .death-color {
+      color: #e74c3c;
+    }
+    
+    .survived-color {
+      color: #2ecc71;
+    }
+    
+    .hover-line {
+      stroke: #7f8c8d;
+      stroke-width: 1px;
+      stroke-dasharray: 3,3;
+    }
+    
+    .axis-label {
+      font-size: 12px;
+      fill: #7f8c8d;
+    }
+    
+    .chart-title {
+      font-size: 16px;
+      font-weight: bold;
+      text-anchor: middle;
+      fill: #2c3e50;
+    }
+    
+    .loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 16px;
+      color: #7f8c8d;
+    }
+    
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+      
+      h1 {
+        font-size: 1.5rem;
+      }
     }
   </style>
 </head>
 <body>
 
-  <h1>Final Project</h1>
-  <p>By Hao Zhang, Kevin Zhang, Sarah He</p> 
+  <h1>Comparison of Vital Signs between Survivors and Non-Survivors of Exploratory Laproscopy</h1>
+  <p class="authors">By Hao Zhang, Kevin Zhang, Sarah He</p> 
 
   <div id="controls">
     <label for="parameter-select">Select Parameter:</label>
     <select id="parameter-select">
       <option value="" selected>-- Select a parameter --</option>
-      <option value="Solar8000/HR">Solar8000/HR</option>
-      <option value="Solar8000/ART_DBP">Solar8000/ART_DBP</option>
-      <option value="Solar8000/ART_MBP">Solar8000/ART_MBP</option>
-      <option value="Solar8000/ART_SBP">Solar8000/ART_SBP</option>
-      <option value="Solar8000/ETCO2">Solar8000/ETCO2</option>
-      <option value="Solar8000/PLETH_SPO2">Solar8000/PLETH_SPO2</option>
+      <option value="Solar8000/HR">Heart Rate (HR)</option>
+      <option value="Solar8000/ART_DBP">Arterial Diastolic Blood Pressure (DBP)</option>
+      <option value="Solar8000/ART_MBP">Arterial Mean Blood Pressure (MBP)</option>
+      <option value="Solar8000/ART_SBP">Arterial Systolic Blood Pressure (SBP)</option>
+      <option value="Solar8000/ETCO2">End-Tidal CO2 (ETCO2)</option>
+      <option value="Solar8000/PLETH_SPO2">Oxygen Saturation (SPO2)</option>
     </select>
   </div>
 
-  <div id="chart"></div>
-  <div class="tooltip" id="tooltip"></div> <!-- Tooltip div -->
+  <div id="chart">
+    <div class="loading">Please select a parameter to display data</div>
+  </div>
+  <div class="tooltip" id="tooltip"></div>
+
+  <h1>Write Up</h1>
+  <p>So far, we’ve collected and processed vital sign data from patients who had exploratory laparoscopy, splitting them into survivors and non-survivors. We used data binning to make the time intervals more manageable and reduce noise, so the graphs are clearer. The visualization is built with D3.js, letting users pick different vital signs and see how they change over time for each group. We also tweaked the design to make it look better, with better spacing, font choices, and tooltips that make it easier to read.
+
+    The hardest part of this project is making the visualization easy to understand while keeping all the important details. There’s a lot of data, and it can be really messy, so we have to find a balance between showing enough information and not overwhelming people. Making sure the graph doesn’t look cluttered, especially with a lot of points close together, takes some trial and error. Also, picking the right colors, labels, and scaling methods is tricky because we don’t want to make the data misleading. 
+    We are also still working on integrating labs data, like blood glucose, in a way that shows the differences between the two groups. 
+  </p>
 
   <script>
     // Function to draw the chart based on selected parameter
     function drawChart(selectedParameter) {
+      if (!selectedParameter) {
+        d3.select("#chart").html('<div class="loading">Please select a parameter to display data</div>');
+        return;
+      }
+      
+      // Show loading indicator
+      d3.select("#chart").html('<div class="loading">Loading data...</div>');
+      
       d3.json("vital_signs_data.json").then(function(rawData) {
+        // Clear previous chart
+        d3.select("#chart").html("");
+        
         // Flatten the nested lists for the Death group.
         const deathData = rawData["Death"].flat().map(d => ({
           time: new Date(d.Time),
           value: +d[selectedParameter] // Use the selected parameter
-        }));
+        })).filter(d => !isNaN(d.value)); // Filter out NaN values
 
         // Flatten the nested lists for the Survived group.
         const survivedData = rawData["Survived"].flat().map(d => ({
           time: new Date(d.Time),
           value: +d[selectedParameter] // Use the selected parameter
-        }));
+        })).filter(d => !isNaN(d.value)); // Filter out NaN values
 
         // Define the cutoff time (10 PM on December 31, 1969)
         const cutoffDate = new Date('1969-12-31T22:00:00'); // 10 PM on the last day of 1969
@@ -78,144 +211,264 @@
         // Select every 30th data point for Survived group
         const every30thSurvivedData = filteredSurvivedData.filter((d, i) => i % 30 === 0);
 
-        // Set dimensions.
-        const width = 800, height = 400;
-        const margin = { top: 20, right: 20, bottom: 30, left: 50 };
+        // Get parameter name for display
+        const parameterName = selectedParameter.split('/').pop();
+        
+        // Set dimensions based on container size
+        const chartContainer = document.getElementById('chart');
+        const containerWidth = chartContainer.clientWidth;
+        const width = Math.min(containerWidth - 20, 1100);
+        const height = Math.min(window.innerHeight * 0.6, 500);
+        const margin = { top: 50, right: 100, bottom: 60, left: 70 };
 
         // Set up scales.
         const x = d3.scaleTime()
-          .domain(d3.extent(every30thDeathData.concat(every30thSurvivedData), d => d.time))
+          .domain(d3.extent([...every30thDeathData, ...every30thSurvivedData], d => d.time))
           .range([margin.left, width - margin.right]);
 
         const y = d3.scaleLinear()
-          .domain([d3.min(every30thDeathData.concat(every30thSurvivedData), d => d.value), d3.max(every30thDeathData.concat(every30thSurvivedData), d => d.value)])
+          .domain([
+            d3.min([...every30thDeathData, ...every30thSurvivedData], d => d.value) * 0.95, 
+            d3.max([...every30thDeathData, ...every30thSurvivedData], d => d.value) * 1.05
+          ])
           .nice()
           .range([height - margin.bottom, margin.top]);
 
         // Create the SVG.
-        const svg = d3.select("#chart").select("svg");
-        if (svg.empty()) {
-          svg = d3.select("#chart").append("svg")
-            .attr("width", width)
-            .attr("height", height);
-        } else {
-          svg.selectAll("*").remove(); // Clear previous content
-        }
+        const svg = d3.select("#chart").append("svg")
+          .attr("width", width)
+          .attr("height", height)
+          .attr("viewBox", `0 0 ${width} ${height}`)
+          .attr("preserveAspectRatio", "xMidYMid meet");
+
+        // Add a background rectangle
+        svg.append("rect")
+          .attr("width", width)
+          .attr("height", height)
+          .attr("fill", "#f9f9f9");
+          
+        // Add grid lines
+        svg.append("g")
+          .attr("class", "grid")
+          .attr("transform", `translate(0, ${height - margin.bottom})`)
+          .call(d3.axisBottom(x)
+            .tickSize(-(height - margin.top - margin.bottom))
+            .tickFormat("")
+          )
+          .call(g => g.select(".domain").remove())
+          .call(g => g.selectAll(".tick line")
+            .attr("stroke", "#e0e0e0")
+            .attr("stroke-opacity", 0.7)
+          );
+          
+        svg.append("g")
+          .attr("class", "grid")
+          .attr("transform", `translate(${margin.left}, 0)`)
+          .call(d3.axisLeft(y)
+            .tickSize(-(width - margin.left - margin.right))
+            .tickFormat("")
+          )
+          .call(g => g.select(".domain").remove())
+          .call(g => g.selectAll(".tick line")
+            .attr("stroke", "#e0e0e0")
+            .attr("stroke-opacity", 0.7)
+          );
 
         // Add title
         svg.append("text")
-          .attr("x", width / 2) // Center the title
-          .attr("y", margin.top) // Position it at the top
-          .attr("text-anchor", "middle") // Center the text
-          .style("font-size", "16px") // Set font size
-          .style("font-weight", "bold") // Make it bold
-          .text(`Values Over Time for Death and Survived Groups - ${selectedParameter}`); // Title text
+          .attr("class", "chart-title")
+          .attr("x", width / 2)
+          .attr("y", margin.top / 2)
+          .text(`${parameterName} Over Time`);
 
         // Add axes.
         svg.append("g")
           .attr("transform", `translate(0, ${height - margin.bottom})`)
-          .call(d3.axisBottom(x));
+          .call(d3.axisBottom(x).ticks(8))
+          .call(g => g.select(".domain").attr("stroke", "#ccc"))
+          .call(g => g.selectAll(".tick line").attr("stroke", "#ccc"))
+          .call(g => g.selectAll(".tick text").attr("fill", "#666"));
 
         svg.append("g")
           .attr("transform", `translate(${margin.left}, 0)`)
-          .call(d3.axisLeft(y));
+          .call(d3.axisLeft(y))
+          .call(g => g.select(".domain").attr("stroke", "#ccc"))
+          .call(g => g.selectAll(".tick line").attr("stroke", "#ccc"))
+          .call(g => g.selectAll(".tick text").attr("fill", "#666"));
 
-        // Line generator for Death group.
+        // Add axis labels
+        svg.append("text")
+          .attr("class", "axis-label")
+          .attr("text-anchor", "middle")
+          .attr("x", width / 2)
+          .attr("y", height - 10)
+          .text("Time");
+
+        svg.append("text")
+          .attr("class", "axis-label")
+          .attr("text-anchor", "middle")
+          .attr("transform", "rotate(-90)")
+          .attr("x", -(height / 2))
+          .attr("y", 20)
+          .text(parameterName);
+
+        // Line generator for Death group with smoothing
         const lineDeath = d3.line()
           .x(d => x(d.time))
-          .y(d => y(d.value));
+          .y(d => y(d.value))
+          .curve(d3.curveMonotoneX); // Smooth curve
 
-        // Draw the line for Death group with a thinner stroke width and color.
+        // Draw the line for Death group
         svg.append("path")
           .datum(every30thDeathData)
-          .attr("class", "line")
+          .attr("class", "line death-line")
           .attr("d", lineDeath)
-          .style("stroke", "red") // Change to red for Death group
-          .style("stroke-width", 1)
-          .style("fill", "none");
+          .style("stroke", "#e74c3c") // Red for Death group
+          .style("stroke-width", 2)
+          .style("fill", "none")
+          .style("opacity", 0.8);
+
+        // Line generator for Survived group with smoothing
+        const lineSurvived = d3.line()
+          .x(d => x(d.time))
+          .y(d => y(d.value))
+          .curve(d3.curveMonotoneX); // Smooth curve
+
+        // Draw the line for Survived group
+        svg.append("path")
+          .datum(every30thSurvivedData)
+          .attr("class", "line survived-line")
+          .attr("d", lineSurvived)
+          .style("stroke", "#2ecc71") // Green for Survived group
+          .style("stroke-width", 2)
+          .style("fill", "none")
+          .style("opacity", 0.8);
 
         // Add scatter plot for Death group.
         svg.selectAll("circle.death")
           .data(every30thDeathData)
           .enter().append("circle")
-          .attr("class", "death") // Class for Death group
+          .attr("class", "death")
           .attr("cx", d => x(d.time))
           .attr("cy", d => y(d.value))
-          .attr("r", 2) // radius of the circles
-          .style("fill", "red"); // color of the circles for Death group
-
-        // Line generator for Survived group.
-        const lineSurvived = d3.line()
-          .x(d => x(d.time))
-          .y(d => y(d.value));
-
-        // Draw the line for Survived group with a thinner stroke width and color.
-        svg.append("path")
-          .datum(every30thSurvivedData)
-          .attr("class", "line")
-          .attr("d", lineSurvived)
-          .style("stroke", "green") // Change to green for Survived group
+          .attr("r", 3)
+          .style("fill", "#e74c3c")
+          .style("stroke", "white")
           .style("stroke-width", 1)
-          .style("fill", "none");
+          .style("opacity", 0.7);
 
         // Add scatter plot for Survived group.
         svg.selectAll("circle.survived")
-          .data(every30thSurvivedData) // Use the filtered data
+          .data(every30thSurvivedData)
           .enter().append("circle")
-          .attr("class", "survived") // Class for Survived group
+          .attr("class", "survived")
           .attr("cx", d => x(d.time))
           .attr("cy", d => y(d.value))
-          .attr("r", 2) // radius of the circles
-          .style("fill", "green"); // color of the circles for Survived group
+          .attr("r", 3)
+          .style("fill", "#2ecc71")
+          .style("stroke", "white")
+          .style("stroke-width", 1)
+          .style("opacity", 0.7);
 
         // Add a transparent rectangle to capture mouse events
         svg.append("rect")
           .attr("width", width - margin.left - margin.right)
           .attr("height", height - margin.top - margin.bottom)
           .attr("transform", `translate(${margin.left}, ${margin.top})`)
-          .style("fill", "none") // Make it transparent
-          .style("pointer-events", "all") // Allow pointer events
+          .style("fill", "none")
+          .style("pointer-events", "all")
           .on("mousemove", function() {
-            const mouseX = d3.mouse(this)[0]; // Get mouse x position using d3.mouse
-            const mouseTime = x.invert(mouseX); // Convert x position to time
+            const mouseX = d3.mouse(this)[0];
+            const mouseTime = x.invert(mouseX + margin.left);
 
             // Find the closest data point for Death group
-            const closestDeath = every30thDeathData.reduce((prev, curr) => {
-              return (Math.abs(curr.time - mouseTime) < Math.abs(prev.time - mouseTime) ? curr : prev);
-            });
+            const closestDeath = every30thDeathData.length > 0 ? 
+              every30thDeathData.reduce((prev, curr) => {
+                return (Math.abs(curr.time - mouseTime) < Math.abs(prev.time - mouseTime) ? curr : prev);
+              }) : null;
 
             // Find the closest data point for Survived group
-            const closestSurvived = every30thSurvivedData.reduce((prev, curr) => {
-              return (Math.abs(curr.time - mouseTime) < Math.abs(prev.time - mouseTime) ? curr : prev);
-            });
+            const closestSurvived = every30thSurvivedData.length > 0 ? 
+              every30thSurvivedData.reduce((prev, curr) => {
+                return (Math.abs(curr.time - mouseTime) < Math.abs(prev.time - mouseTime) ? curr : prev);
+              }) : null;
+
+            // Format time for display
+            const formatTime = d3.timeFormat("%I:%M %p");
+            const formatDate = d3.timeFormat("%b %d, %Y");
 
             // Update tooltip content
+            let tooltipContent = `
+              <div class="tooltip-title">${parameterName} at ${closestDeath ? formatTime(closestDeath.time) : ''} on ${closestDeath ? formatDate(closestDeath.time) : ''}</div>
+            `;
+            
+            if (closestDeath) {
+              tooltipContent += `
+                <div class="tooltip-group">
+                  <div class="tooltip-group-title death-color">Non-Survivors</div>
+                  <div>Value: ${closestDeath.value.toFixed(1)}</div>
+                </div>
+              `;
+            }
+            
+            if (closestSurvived) {
+              tooltipContent += `
+                <div class="tooltip-group">
+                  <div class="tooltip-group-title survived-color">Survivors</div>
+                  <div>Value: ${closestSurvived.value.toFixed(1)}</div>
+                </div>
+              `;
+            }
+
             d3.select("#tooltip")
               .style("opacity", 1)
-              .html(`<strong>Death Group</strong><br>Value: ${closestDeath.value.toFixed(3)}<br>Time: ${closestDeath.time.toLocaleString()}<br><strong>Survived Group</strong><br>Value: ${closestSurvived.value.toFixed(3)}<br>Time: ${closestSurvived.time.toLocaleString()}`)
-              .style("left", (d3.event.pageX + 5) + "px") // Use d3.event for mouse position
+              .html(tooltipContent)
+              .style("left", (d3.event.pageX + 15) + "px")
               .style("top", (d3.event.pageY - 28) + "px");
 
             // Add a vertical line
-            svg.selectAll(".hover-line").remove(); // Remove any existing line
+            svg.selectAll(".hover-line").remove();
             svg.append("line")
               .attr("class", "hover-line")
-              .attr("x1", mouseX + margin.left) // Adjust for margin
-              .attr("x2", mouseX + margin.left) // Adjust for margin
+              .attr("x1", mouseX + margin.left)
+              .attr("x2", mouseX + margin.left)
               .attr("y1", margin.top)
-              .attr("y2", height - margin.bottom)
-              .style("stroke", "black")
-              .style("stroke-opacity", 0.75)
-              .style("stroke-width", 1);
+              .attr("y2", height - margin.bottom);
+              
+            // Highlight the closest points
+            svg.selectAll(".highlight-point").remove();
+            
+            if (closestDeath) {
+              svg.append("circle")
+                .attr("class", "highlight-point")
+                .attr("cx", x(closestDeath.time))
+                .attr("cy", y(closestDeath.value))
+                .attr("r", 6)
+                .style("fill", "none")
+                .style("stroke", "#e74c3c")
+                .style("stroke-width", 2);
+            }
+            
+            if (closestSurvived) {
+              svg.append("circle")
+                .attr("class", "highlight-point")
+                .attr("cx", x(closestSurvived.time))
+                .attr("cy", y(closestSurvived.value))
+                .attr("r", 6)
+                .style("fill", "none")
+                .style("stroke", "#2ecc71")
+                .style("stroke-width", 2);
+            }
           })
           .on("mouseout", function() {
             d3.select("#tooltip").style("opacity", 0);
-            svg.selectAll(".hover-line").remove(); // Remove the line on mouse out
+            svg.selectAll(".hover-line").remove();
+            svg.selectAll(".highlight-point").remove();
           });
 
-        // Add legend
+        // Add legend with improved positioning - moved closer to the top-right corner
         const legend = svg.append("g")
-          .attr("transform", `translate(${width - margin.right - 100}, ${margin.top})`); // Position the legend
+          .attr("transform", `translate(${width - margin.right + 20}, ${margin.top})`);
 
         // Legend for Death group
         legend.append("rect")
@@ -223,27 +476,34 @@
           .attr("y", 0)
           .attr("width", 15)
           .attr("height", 15)
-          .style("fill", "red");
+          .style("fill", "#e74c3c")
+          .style("opacity", 0.8);
 
         legend.append("text")
           .attr("x", 20)
           .attr("y", 12)
-          .text("Death Group")
-          .style("font-size", "12px");
+          .text("Non-Survivors")
+          .style("font-size", "12px")
+          .style("fill", "#333");
 
         // Legend for Survived group
         legend.append("rect")
           .attr("x", 0)
-          .attr("y", 20)
+          .attr("y", 30)
           .attr("width", 15)
           .attr("height", 15)
-          .style("fill", "green");
+          .style("fill", "#2ecc71")
+          .style("opacity", 0.8);
 
         legend.append("text")
           .attr("x", 20)
-          .attr("y", 32)
-          .text("Survived Group")
-          .style("font-size", "12px");
+          .attr("y", 42)
+          .text("Survivors")
+          .style("font-size", "12px")
+          .style("fill", "#333");
+      }).catch(function(error) {
+        console.error("Error loading data:", error);
+        d3.select("#chart").html('<div class="loading">Error loading data. Please try again.</div>');
       });
     }
 
@@ -253,12 +513,16 @@
     // Event listener for dropdown change
     d3.select("#parameter-select").on("change", function() {
       const selectedParameter = d3.select(this).property("value");
-      drawChart(selectedParameter); // Call the function to redraw the chart with the selected parameter
+      drawChart(selectedParameter);
     });
-    </script>
-</div>
-  <h1>Write Up</h1>
-  <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Facere exercitationem provident nam nemo saepe unde omnis quasi aliquam, ipsam dolore rerum. Laudantium atque sequi numquam ipsum quos, dignissimos distinctio assumenda.</p>
-
+    
+    // Make the visualization responsive
+    window.addEventListener('resize', function() {
+      const selectedParameter = d3.select("#parameter-select").property("value");
+      if (selectedParameter) {
+        drawChart(selectedParameter);
+      }
+    });
+  </script>
 </body>
 </html>

@@ -143,6 +143,11 @@
         font-size: 1.5rem;
       }
     }
+
+    .survived-line {
+  filter: drop-shadow(0px 0px 4px #2ecc71);
+}
+
   </style>
 </head>
 
@@ -504,26 +509,19 @@
 
             // Update tooltip content
             let tooltipContent = `
-              <div class="tooltip-title">${parameterName} at ${closestDeath ? formatTime(closestDeath.time) : ''} on ${closestDeath ? formatDate(closestDeath.time) : ''}</div>
-            `;
+            <div class="tooltip-title">${parameterName} at ${formatTime(closestDeath.time)}</div>
+            <div class="tooltip-group">
+              <div class="tooltip-group-title death-color">Non-Survivors</div>
+              <div>Value: <strong>${closestDeath.value.toFixed(1)}</strong></div>
+              <div><em>Sign of distress?</em></div>
+            </div>
+            <div class="tooltip-group">
+              <div class="tooltip-group-title survived-color">Survivors</div>
+              <div>Value: <strong>${closestSurvived.value.toFixed(1)}</strong></div>
+              <div><em>Stable vitals</em></div>
+            </div>
+          `;
 
-            if (closestDeath) {
-              tooltipContent += `
-                <div class="tooltip-group">
-                  <div class="tooltip-group-title death-color">Non-Survivors</div>
-                  <div>Value: ${closestDeath.value.toFixed(1)}</div>
-                </div>
-              `;
-            }
-
-            if (closestSurvived) {
-              tooltipContent += `
-                <div class="tooltip-group">
-                  <div class="tooltip-group-title survived-color">Survivors</div>
-                  <div>Value: ${closestSurvived.value.toFixed(1)}</div>
-                </div>
-              `;
-            }
 
             d3.select("#tooltip")
               .style("opacity", 1)

@@ -190,6 +190,8 @@
           value: +d[selectedParameter] // Use the selected parameter
         })).filter(d => !isNaN(d.value)); // Filter out NaN values
 
+        
+
         // Flatten the nested lists for the Survived group.
         const survivedData = rawData["Survived"].flat().map(d => ({
           time: new Date(d.Time),
@@ -343,6 +345,27 @@
           .style("stroke-width", 2)
           .style("fill", "none")
           .style("opacity", 0.8);
+
+// Add a shaded region for time after passing
+const deathTime = d3.max(every30thDeathData, d => d.time); // Latest time in death group
+if (deathTime) {
+    svg.append("rect")
+        .attr("x", x(deathTime))
+        .attr("y", margin.top)
+        .attr("width", width - margin.right - x(deathTime))
+        .attr("height", height - margin.top - margin.bottom)
+        .style("fill", "#e74c3c")
+        .style("opacity", 0.2);
+    
+    // Add label to indicate shaded region represents time after passing
+    svg.append("text")
+        .attr("x", x(deathTime) + 10)
+        .attr("y", margin.top + 20)
+        .attr("fill", "#e74c3c")
+        .attr("font-size", "14px")
+        .attr("font-weight", "bold")
+        .text("Time After Passing");
+}
 
         // Add scatter plot for Death group.
         svg.selectAll("circle.death")

@@ -51,16 +51,18 @@
       font-size: 14px;
       min-width: 200px;
     }
-    
-    #chart {
-      position: relative;
-      margin: 20px 0;
-      background-color: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      padding: 15px;
-      overflow: hidden;
-    }
+
+#chart {
+  position: relative;
+  margin: 20px 0;
+  padding: 0;
+  background-color: transparent; /* Fully blend with the page */
+  border-radius: 0;
+  box-shadow: none; /* Remove shadow */
+  width: 100%; /* Make it take full width */
+}
+
+
     
     .tooltip {
       position: absolute;
@@ -141,14 +143,15 @@
 </head>
 <body>
 
-  <h1>Comparison of Vital Signs between Survivors and Non-Survivors of Exploratory Laproscopy</h1>
-  <p class="authors">By Hao Zhang, Kevin Zhang, Sarah He</p> 
+  <h1>Survival Signals: How Vital Signs Predict Life or Loss After Surgery</h1>
+<p class="authors">Based on an analysis of <strong>X patients</strong> undergoing exploratory laparoscopy surgery*</p> 
+<p class="footnote">*Exploratory laparoscopy is a minimally invasive procedure used to examine the abdominal organs and diagnose conditions.</p>
+
 
   <div id="controls">
-    <label for="parameter-select">Select Parameter:</label>
+    <label for="parameter-select">Choose a Vital Sign:</label>
     <select id="parameter-select">
-      <option value="" selected>-- Select a parameter --</option>
-      <option value="Solar8000/HR">Heart Rate (HR)</option>
+      <option value="Solar8000/HR" selected>Heart Rate (HR)</option>
       <option value="Solar8000/ART_DBP">Arterial Diastolic Blood Pressure (DBP)</option>
       <option value="Solar8000/ART_MBP">Arterial Mean Blood Pressure (MBP)</option>
       <option value="Solar8000/ART_SBP">Arterial Systolic Blood Pressure (SBP)</option>
@@ -162,12 +165,6 @@
   </div>
   <div class="tooltip" id="tooltip"></div>
 
-  <h1>Write Up</h1>
-  <p>So far, we’ve collected and processed vital sign data from patients who had exploratory laparoscopy, splitting them into survivors and non-survivors. We used data binning to make the time intervals more manageable and reduce noise, so the graphs are clearer. The visualization is built with D3.js, letting users pick different vital signs and see how they change over time for each group. We also tweaked the design to make it look better, with better spacing, font choices, and tooltips that make it easier to read.
-
-    The hardest part of this project is making the visualization easy to understand while keeping all the important details. There’s a lot of data, and it can be really messy, so we have to find a balance between showing enough information and not overwhelming people. Making sure the graph doesn’t look cluttered, especially with a lot of points close together, takes some trial and error. Also, picking the right colors, labels, and scaling methods is tricky because we don’t want to make the data misleading. 
-    We are also still working on integrating labs data, like blood glucose, in a way that shows the differences between the two groups. 
-  </p>
 
   <script>
     // Function to draw the chart based on selected parameter
@@ -219,9 +216,10 @@
         // Set dimensions based on container size
         const chartContainer = document.getElementById('chart');
         const containerWidth = chartContainer.clientWidth;
-        const width = Math.min(containerWidth - 20, 1100);
-        const height = Math.min(window.innerHeight * 0.6, 500);
-        const margin = { top: 50, right: 100, bottom: 60, left: 70 };
+        const width = Math.min(containerWidth - 20, 1400); // Increase width to 1400px
+      const height = Math.min(window.innerHeight * 0.8, 700); // Increase height to 700px
+      const margin = { top: 60, right: 150, bottom: 80, left: 100 }; // Adjust margins for better spacing
+
 
         // Set up scales.
         const x = d3.scaleTime()
@@ -243,12 +241,6 @@
           .attr("viewBox", `0 0 ${width} ${height}`)
           .attr("preserveAspectRatio", "xMidYMid meet");
 
-        // Add a background rectangle
-        svg.append("rect")
-          .attr("width", width)
-          .attr("height", height)
-          .attr("fill", "#f9f9f9");
-          
         // Add grid lines
         svg.append("g")
           .attr("class", "grid")
@@ -366,6 +358,40 @@ if (deathTime) {
         .attr("font-weight", "bold")
         .text("Time After Passing");
 }
+
+// Add normal range shading instead of a single baseline
+const normalRanges = {
+    "Solar8000/HR": [75, 95],
+    "Solar8000/ART_DBP": [60, 80],
+    "Solar8000/ART_MBP": [70, 100],
+    "Solar8000/ART_SBP": [90, 120],
+    "Solar8000/ETCO2": [35, 45],
+    "Solar8000/PLETH_SPO2": [95, 100]
+};
+
+
+
+if (selectedParameter in normalRanges) {
+    const [normalMin, normalMax] = normalRanges[selectedParameter];
+    
+    svg.append("rect")
+        .attr("x", margin.left)
+        .attr("y", y(normalMax))
+        .attr("width", width - margin.left - margin.right)
+        .attr("height", y(normalMin) - y(normalMax))
+        .style("fill", "#3498db")
+        .style("opacity", 0.15);
+    
+    // Add labels for normal range
+    svg.append("text")
+        .attr("x", width - margin.right - 120)
+        .attr("y", y(normalMax) - 5)
+        .attr("fill", "#3498db")
+        .attr("font-size", "12px")
+        .attr("font-weight", "bold")
+        .text("Normal Range");
+}
+
 
         // Add scatter plot for Death group.
         svg.selectAll("circle.death")

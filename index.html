@@ -4,13 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Comparison of Vital Signs between Survivors and Non-Survivors of Exploratory Laproscopy</title>
-  <!-- Using D3 v5 -->
   <script src="https://d3js.org/d3.v5.min.js"></script>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
-      /* Removed max-width: 1200px; so the page can grow wider */
       padding: 20px;
       color: #333;
       line-height: 1.6;
@@ -25,7 +23,7 @@
       font-size: 1.8rem;
     }
 
-    .authors {
+    .footnote {
       color: #7f8c8d;
       margin-top: 0;
       margin-bottom: 30px;
@@ -44,14 +42,15 @@
     #chart-container {
       flex: 1 1 auto;
       min-width: 600px;
-      /* Increased this from 900px to 1200px */
       max-width: 1200px;
       margin-right: 20px;
     }
 
-    /* Sidebar for key takeaways */
+    /* Key Takeaways panel starts hidden & transparent for fade-in */
     #insights-panel {
-      /* Narrowed from 220px to 180px */
+      display: none;        /* hidden by default */
+      opacity: 0;           /* fully transparent */
+      transition: opacity 1s ease-in-out; /* fade animation */
       flex: 0 0 180px;
       border-left: 2px solid #f0f0f0;
       padding-left: 20px;
@@ -103,6 +102,7 @@
       width: 100%;
     }
 
+    /* Tooltip is hidden until the graph is fully drawn */
     .tooltip {
       position: absolute;
       text-align: left;
@@ -112,6 +112,7 @@
       border: 1px solid #ddd;
       border-radius: 4px;
       pointer-events: none;
+      display: none;
       opacity: 0;
       z-index: 10;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
@@ -218,14 +219,15 @@
       <div id="chart">
         <div class="loading">Please select a parameter to display data</div>
       </div>
+      <!-- Tooltip is initially hidden -->
       <div class="tooltip" id="tooltip"></div>
     </div>
 
-    <!-- Key Takeaways Sidebar -->
+    <!-- Key Takeaways Sidebar (hidden + transparent initially) -->
     <div id="insights-panel">
       <h2>Key Takeaways</h2>
-      <div id="takeaways-content" style="margin-top:10px;">
-        <!-- Populated dynamically via JavaScript -->
+      <div id="takeaways-content">
+        <!-- Populated dynamically -->
       </div>
     </div>
   </div>
@@ -282,34 +284,36 @@
     };
 
     function drawChart(selectedParameter) {
+      // Hide the Key Takeaways panel & tooltip each time a new chart loads
+      d3.select("#insights-panel").style("display", "none").style("opacity", 0);
+      d3.select("#tooltip").style("display", "none").style("opacity", 0);
+
       if (!selectedParameter) {
         d3.select("#chart").html('<div class="loading">Please select a parameter to display data</div>');
         return;
       }
 
-      // Update Key Takeaways
+      // Update Key Takeaways text (still hidden for now)
       d3.select("#takeaways-content").html(insightsByParameter[selectedParameter] || "");
 
       // Show loading indicator
       d3.select("#chart").html('<div class="loading">Loading data...</div>');
 
       d3.json("vital_signs_data.json").then(function (rawData) {
-        // Clear previous chart
-        d3.select("#chart").html("");
+        d3.select("#chart").html(""); // Clear loading indicator
 
-        // Death group
+        // Flatten data
         const deathData = rawData["Death"].flat().map(d => ({
           time: new Date(d.Time),
           value: +d[selectedParameter]
         })).filter(d => !isNaN(d.value));
 
-        // Survived group
         const survivedData = rawData["Survived"].flat().map(d => ({
           time: new Date(d.Time),
           value: +d[selectedParameter]
         })).filter(d => !isNaN(d.value));
 
-        // Cutoff: 10 PM on Dec 31, 1969
+        // Cutoff
         const cutoffDate = new Date('1969-12-31T22:00:00');
         const filteredDeathData = deathData.filter(d => d.time < cutoffDate && d.time.getFullYear() === 1969);
         const filteredSurvivedData = survivedData.filter(d => d.time < cutoffDate && d.time.getFullYear() === 1969);
@@ -318,29 +322,22 @@
         const every30thDeathData = filteredDeathData.filter((d, i) => i % 30 === 0);
         const every30thSurvivedData = filteredSurvivedData.filter((d, i) => i % 30 === 0);
 
-        // Combined for domain
         const allData = every30thDeathData.concat(every30thSurvivedData);
         if (allData.length === 0) {
           d3.select("#chart").html('<div class="loading">No data available for this parameter.</div>');
           return;
         }
 
-        // Parameter name (e.g. "HR")
         const parameterName = selectedParameter.split('/').pop();
-
-        // Container dims
         const chartContainer = document.getElementById('chart');
         const containerWidth = chartContainer.clientWidth;
-        // Bump the max possible width
         const width = Math.min(containerWidth - 20, 1400);
         const height = Math.min(window.innerHeight * 0.8, 700);
         const margin = { top: 60, right: 150, bottom: 80, left: 100 };
 
-        // Data domain
         const dataMin = d3.min(allData, d => d.value);
         const dataMax = d3.max(allData, d => d.value);
 
-        // Normal ranges
         const normalRanges = {
           "Solar8000/HR": [75, 95],
           "Solar8000/ART_DBP": [60, 80],
@@ -375,7 +372,7 @@
           .attr("viewBox", `0 0 ${width} ${height}`)
           .attr("preserveAspectRatio", "xMidYMid meet");
 
-        // Grid lines (vertical)
+        // Grid lines
         svg.append("g")
           .attr("class", "grid")
           .attr("transform", `translate(0, ${height - margin.bottom})`)
@@ -389,7 +386,6 @@
             .attr("stroke-opacity", 0.7)
           );
 
-        // Grid lines (horizontal)
         svg.append("g")
           .attr("class", "grid")
           .attr("transform", `translate(${margin.left}, 0)`)
@@ -403,7 +399,7 @@
             .attr("stroke-opacity", 0.7)
           );
 
-        // Title
+        // Chart Title
         svg.append("text")
           .attr("class", "chart-title")
           .attr("x", width / 2)
@@ -454,9 +450,9 @@
             .attr("stroke-dashoffset", 0);
         }
 
-        // Time-based animation speed
+        // Calculate durations
         const totalTimeRange = x.domain()[1] - x.domain()[0];
-        const baseAnimationDuration = 10000;
+        const baseAnimationDuration = 6000;
         const speedFactor = baseAnimationDuration / totalTimeRange;
 
         // Non-Survivors line
@@ -471,12 +467,11 @@
 
         const deathLinePath = svg.append("path")
           .datum(every30thDeathData)
-          .attr("class", "line death-line")
-          .attr("d", lineDeath)
           .style("stroke", "#e74c3c")
           .style("stroke-width", 2)
           .style("fill", "none")
-          .style("opacity", 0.8);
+          .style("opacity", 0.8)
+          .attr("d", lineDeath);
 
         animateLine(deathLinePath, deathDuration);
 
@@ -492,16 +487,15 @@
 
         const survivedLinePath = svg.append("path")
           .datum(every30thSurvivedData)
-          .attr("class", "line survived-line")
-          .attr("d", lineSurvived)
           .style("stroke", "#2ecc71")
           .style("stroke-width", 2)
           .style("fill", "none")
-          .style("opacity", 0.8);
+          .style("opacity", 0.8)
+          .attr("d", lineSurvived);
 
         animateLine(survivedLinePath, survivedDuration);
 
-        // "Time After Passing" region
+        // Time After Passing region
         const deathTime = d3.max(every30thDeathData, d => d.time);
         let passingRegion, passingLabel;
         if (deathTime) {
@@ -547,21 +541,22 @@
             .text("Normal Range");
         }
 
-        // Hover interaction
-        svg.append("rect")
+        // Hover rectangle (disable pointer events until finished)
+        const hoverRect = svg.append("rect")
           .attr("width", width - margin.left - margin.right)
           .attr("height", height - margin.top - margin.bottom)
           .attr("transform", `translate(${margin.left}, ${margin.top})`)
           .style("fill", "none")
-          .style("pointer-events", "all")
+          .style("pointer-events", "none")
           .on("mousemove", function() {
             const [mouseX] = d3.mouse(this);
             const mouseTime = x.invert(mouseX + margin.left);
 
-            // Closest points
+            // Closest
             const closestDeath = every30thDeathData.reduce((prev, curr) => {
               return (Math.abs(curr.time - mouseTime) < Math.abs(prev.time - mouseTime) ? curr : prev);
             }, every30thDeathData[0]);
+
             const closestSurvived = every30thSurvivedData.reduce((prev, curr) => {
               return (Math.abs(curr.time - mouseTime) < Math.abs(prev.time - mouseTime) ? curr : prev);
             }, every30thSurvivedData[0]);
@@ -630,7 +625,6 @@
         const legend = svg.append("g")
           .attr("transform", `translate(${width - margin.right + 20}, ${margin.top})`);
 
-        // Death legend
         legend.append("rect")
           .attr("x", 0)
           .attr("y", 0)
@@ -638,7 +632,6 @@
           .attr("height", 15)
           .style("fill", "#e74c3c")
           .style("opacity", 0.8);
-
         legend.append("text")
           .attr("x", 20)
           .attr("y", 12)
@@ -646,7 +639,6 @@
           .style("font-size", "12px")
           .style("fill", "#333");
 
-        // Survived legend
         legend.append("rect")
           .attr("x", 0)
           .attr("y", 30)
@@ -654,13 +646,35 @@
           .attr("height", 15)
           .style("fill", "#2ecc71")
           .style("opacity", 0.8);
-
         legend.append("text")
           .attr("x", 20)
           .attr("y", 42)
           .text("Survivors")
           .style("font-size", "12px")
           .style("fill", "#333");
+
+        // Compute total animation time
+        const totalAnimationTime = Math.max(deathDuration, survivedDuration) + 2000;
+
+        // After the animations complete, fade in the panel & enable hover
+        setTimeout(() => {
+          // show Key Takeaways panel
+          d3.select("#insights-panel")
+            .style("display", "block")   // make visible
+            .style("opacity", 0);        // start from transparent
+
+          // use a tiny delay to ensure the display property is set,
+          // then fade in to opacity: 1
+          setTimeout(() => {
+            d3.select("#insights-panel").style("opacity", 1);
+          }, 50);
+
+          // show tooltip container
+          d3.select("#tooltip").style("display", "block");
+
+          // enable pointer events on the hover rectangle
+          hoverRect.style("pointer-events", "all");
+        }, totalAnimationTime);
 
       }).catch(function (error) {
         console.error("Error loading data:", error);
@@ -671,13 +685,13 @@
     // Initial draw
     drawChart(d3.select("#parameter-select").property("value"));
 
-    // On parameter change
+    // When user changes the parameter
     d3.select("#parameter-select").on("change", function () {
       const selectedParameter = d3.select(this).property("value");
       drawChart(selectedParameter);
     });
 
-    // Responsive
+    // Handle window resize
     window.addEventListener('resize', function () {
       const selectedParameter = d3.select("#parameter-select").property("value");
       if (selectedParameter) {

@@ -7,19 +7,15 @@
   <script src="https://d3js.org/d3.v5.min.js"></script>
   <style>
     /* -----------------------------
-       GLOBAL STYLES (For Both Pages)
+       GLOBAL STYLES (For All Pages)
        ----------------------------- */
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
-      padding: 10px;
+      padding: 0; /* Remove extra padding */
       background: #f7f9fc;
       color: #333;
       line-height: 1.4;
-    }
-    h1, h2, p {
-      margin: 0;
-      padding: 0;
     }
     button {
       cursor: pointer;
@@ -27,30 +23,40 @@
     }
     
     /* -----------------------------
-       HOMEPAGE STYLES (UPDATED ONLY)
+       HOMEPAGE STYLES (Reduced whitespace)
        ----------------------------- */
-    /* The homepage container now uses reduced padding and margins so that all content fits in the viewport */
     #home-page {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       background: linear-gradient(135deg, #3498db, #2ecc71);
       color: #fff;
-      padding: 20px;
-      margin: 10px auto;
+      padding: 10px;
+      margin: 0 auto;
       max-width: 900px;
       border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
       text-align: center;
-      /* Ensure the homepage does not exceed viewport height */
-      max-height: 100vh;
       overflow: hidden;
     }
     #home-page h1 {
-      font-size: 2rem;
-      margin-bottom: 10px;
+      font-size: 2.2rem;
+      margin: 10px 0;
     }
     #home-page p {
+      font-size: 1rem;
+      margin: 10px 0;
+      line-height: 1.4;
+      max-width: 800px;
+    }
+    #home-page .project-info {
       font-size: 0.95rem;
       margin-bottom: 15px;
-      line-height: 1.4;
+    }
+    /* Container for the bar chart with increased max-width */
+    #bar-chart {
+      margin: 10px auto;
+      max-width: 800px;
     }
     #home-page button {
       background: #ffffff;
@@ -59,13 +65,37 @@
       border-radius: 5px;
       padding: 8px 16px;
       font-size: 1rem;
-      margin-top: 10px;
+      margin: 10px 0 15px 0;
     }
     #home-page button:hover {
       background: #ecf0f1;
     }
     
-    /* MINI GAME CONTAINER (Homepage Only) */
+    /* -----------------------------
+       MINIGAME PAGE (Unchanged)
+       ----------------------------- */
+    #minigame-page {
+      display: none;
+      background: linear-gradient(135deg, #8e44ad, #e67e22);
+      color: #fff;
+      padding: 20px;
+      margin: 10px auto;
+      max-width: 900px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      text-align: center;
+      max-height: 100vh;
+      overflow: hidden;
+    }
+    #minigame-page h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+    #minigame-page p {
+      font-size: 0.95rem;
+      margin-bottom: 15px;
+      line-height: 1.4;
+    }
     #minigame-container {
       margin: 10px auto;
       width: 100%;
@@ -76,15 +106,6 @@
       padding: 15px;
       text-align: center;
       color: #333;
-    }
-    #minigame-container h2 {
-      font-size: 1.3rem;
-      margin-bottom: 5px;
-    }
-    #minigame-container p {
-      margin-bottom: 10px;
-      font-size: 0.95rem;
-      line-height: 1.4;
     }
     #minigame {
       margin: 0 auto;
@@ -106,14 +127,14 @@
     }
     
     /* -----------------------------
-       GRAPHS PAGE STYLES (UNCHANGED)
+       GRAPHS PAGE (Unchanged)
        ----------------------------- */
     #graphs-page {
       display: none;
       margin: 0;
       padding: 0;
     }
-    h1 {
+    #graphs-page h1 {
       color: #2c3e50;
       margin: 10px 0 5px;
       font-size: 1.8rem;
@@ -181,7 +202,6 @@
       padding-left: 20px;
       margin: 10px 0;
     }
-    
     .tooltip {
       position: absolute;
       text-align: left;
@@ -235,8 +255,9 @@
       font-size: 16px;
       color: #7f8c8d;
     }
+    
     @media (max-width: 768px) {
-      #home-page, #graphs-page {
+      #home-page, #minigame-page, #graphs-page {
         margin: 20px auto;
         padding: 15px;
       }
@@ -258,24 +279,35 @@
 </head>
 <body>
 
-  <!-- HOME PAGE SECTION (Updated Homepage Styling Only) -->
+  <!-- HOME PAGE SECTION -->
   <div id="home-page">
     <h1>Welcome to the Vital Signs Dashboard</h1>
     <p>
       Exploratory laparoscopy is a minimally invasive surgical procedure that uses a small camera and specialized instruments 
-      inserted through tiny incisions to examine the internal organs. It is most commonly performed to diagnose conditions such as unexplained abdominal pain, suspected endometriosis, or other intra-abdominal disorders. Because it is less invasive than traditional open surgery, patients experience faster recoveries and a very low overall mortality rate—typically well below 1%. However, our dataset revealed this procedure had the highest number of deaths, prompting us to investigate whether certain vital signs during surgery might indicate a higher risk of mortality.
+      inserted through tiny incisions to examine internal organs. It is most commonly performed to diagnose conditions such as unexplained abdominal pain, suspected endometriosis, or other intra-abdominal disorders. Patients benefit from faster recoveries and a very low mortality rate—typically well below 1%.
+    </p>
+    <p class="project-info">
+      This project analyzes clinical data to uncover critical insights about vital signs during surgery. By comparing trends in survivors versus non‑survivors, our interactive dashboard aims to identify key indicators of patient outcomes.
     </p>
     
-    <!-- MINI GAME SECTION -->
+    <!-- Bar Graph: Top 10 Operations with Most Deaths -->
+    <div id="bar-chart"></div>
+    
+    <button id="home-next-btn">Click Here to Begin the Opertion</button>
+    <footer>
+      <p>By: Sarah He, Hao Zhang, Kevin Zhang</p>
+    </footer>
+  </div>
+
+  <!-- MINIGAME PAGE SECTION (Unchanged) -->
+  <div id="minigame-page">
+    <h1>Mini Game: Guess the Survivor!</h1>
+    <p>Click on the heart rate line you think represents the survivors.</p>
     <div id="minigame-container">
-      <h2>Mini Game: Guess the Survivor!</h2>
-      <p>Click on the heart rate line you think represents the survivors.</p>
       <div id="minigame">
         <div id="minigame-popup"></div>
       </div>
     </div>
-    
-    <button id="next-btn">Next</button>
   </div>
 
   <!-- GRAPHS PAGE SECTION (Unchanged) -->
@@ -306,9 +338,102 @@
     </div>
   </div>
 
+  <!-- Bar Graph Script for Homepage (Removed Tooltip, Kept Hover Animation) -->
+  <script>
+    d3.text("clinical_data.json").then(function(text) {
+      // Parse NDJSON
+      var data = text.split("\n")
+                     .filter(function(line) { return line.trim() !== ""; })
+                     .map(JSON.parse);
+      
+      // Group data by operation name and sum the death counts
+      var deathsByOp = d3.nest()
+        .key(function(d) { return d.opname; })
+        .rollup(function(v) { 
+          return d3.sum(v, function(d) { return +d.death_inhosp; });
+        })
+        .entries(data);
+      
+      // Sort descending and take the top 10
+      deathsByOp.sort(function(a, b) { return b.value - a.value; });
+      var top10 = deathsByOp.slice(0, 10);
+      
+      // Dimensions and margins (increased bottom margin to fit rotated labels)
+      var margin = { top: 30, right: 20, bottom: 100, left: 50 },
+          width = 700 - margin.left - margin.right,
+          height = 350 - margin.top - margin.bottom;
+      
+      // Create SVG
+      var svg = d3.select("#bar-chart")
+        .append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+      
+      // Scales
+      var x = d3.scaleBand()
+        .domain(top10.map(function(d) { return d.key; }))
+        .range([0, width])
+        .padding(0.1);
+      
+      var y = d3.scaleLinear()
+        .domain([0, d3.max(top10, function(d) { return d.value; })])
+        .range([height, 0]);
+      
+      // X Axis
+      svg.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x))
+        .selectAll("text")
+          .attr("transform", "rotate(-40)")
+          .attr("dy", "-0.1em")
+          .attr("dx", "-0.8em")
+          .style("text-anchor", "end");
+      
+      // Y Axis
+      svg.append("g")
+        .call(d3.axisLeft(y));
+      
+      // Bars with hover animation (no tooltip)
+      svg.selectAll(".bar")
+        .data(top10)
+        .enter().append("rect")
+          .attr("class", "bar")
+          .attr("x", function(d) { return x(d.key); })
+          .attr("width", x.bandwidth())
+          .attr("y", function(d) { return y(d.value); })
+          .attr("height", function(d) { return height - y(d.value); })
+          .attr("fill", "#e74c3c")
+          .on("mouseover", function() {
+            d3.select(this)
+              .transition().duration(200)
+              .attr("fill", "#c0392b");
+          })
+          .on("mouseout", function() {
+            d3.select(this)
+              .transition().duration(200)
+              .attr("fill", "#e74c3c");
+          });
+      
+      // Title
+      svg.append("text")
+        .attr("x", width / 2 )
+        .attr("y", -10)
+        .attr("text-anchor", "middle")
+        .style("font-size", "16px")
+        .style("font-weight", "bold")
+        .text("Top 10 Operations with Most Deaths");
+      
+    }).catch(function(error){
+      console.error("Error loading clinical data:", error);
+    });
+  </script>
+
+  <!-- Existing Script for Minigame and Graphs Page (Unchanged) -->
   <script>
     /***************************************************************
-     * MAIN GRAPH DRAWING FUNCTION (Graphs Page – Unchanged)
+     * MAIN GRAPH DRAWING FUNCTION (GRAPHS PAGE – Unchanged)
      ***************************************************************/
     const insightsByParameter = {
       "Solar8000/HR": `
@@ -360,7 +485,7 @@
         </ul>
       `
     };
-
+    
     function drawChart(selectedParameter) {
       d3.select("#insights-panel").style("display", "none").style("opacity", 0);
       d3.select("#tooltip").style("display", "none").style("opacity", 0);
@@ -673,9 +798,9 @@
         d3.select("#chart").html('<div class="loading">Error loading data. Please try again.</div>');
       });
     }
-
+    
     /***************************************************************
-     * MINI GAME DEFINITION (Unchanged)
+     * MINI GAME FUNCTION (Unchanged)
      ***************************************************************/
     let minigameAnswered = false;
     function showMiniGamePopup(message, x, y) {
@@ -691,8 +816,7 @@
     }
     function hideMiniGamePopup() {
       const popup = d3.select("#minigame-popup");
-      popup
-        .transition()
+      popup.transition()
         .duration(300)
         .style("opacity", 0)
         .on("end", () => {
@@ -769,6 +893,7 @@
           d3.select(this).style("stroke", "#2ecc71");
           const [mx, my] = d3.mouse(this);
           showMiniGamePopup("Congrats, you survived!", mx, my);
+          setTimeout(goToGraphsPage, 2000);
         });
         nonSurvivorsPath.on("click", function() {
           if (minigameAnswered) return;
@@ -776,13 +901,30 @@
           d3.select(this).style("stroke", "#e74c3c");
           const [mx, my] = d3.mouse(this);
           showMiniGamePopup("Game over", mx, my);
+          setTimeout(goToGraphsPage, 2000);
         });
       }).catch(function(error) {
         console.error("Error loading mini game data:", error);
         d3.select("#minigame").html("Error loading mini game.");
       });
     }
+    
+    function goToGraphsPage() {
+      document.getElementById("minigame-page").style.display = "none";
+      document.getElementById("graphs-page").style.display = "block";
+      drawChart(d3.select("#parameter-select").property("value"));
+    }
+    
+    // Initialize Mini Game on Page Load
     drawMiniGame();
+    
+    // Transition from Home to Mini Game Page
+    document.getElementById("home-next-btn").addEventListener("click", function() {
+      document.getElementById("home-page").style.display = "none";
+      document.getElementById("minigame-page").style.display = "block";
+    });
+    
+    // Graphs Page Logic (Unchanged)
     d3.select("#parameter-select").on("change", function () {
       const selectedParameter = d3.select(this).property("value");
       drawChart(selectedParameter);
@@ -792,11 +934,6 @@
       if (selectedParameter) {
         drawChart(selectedParameter);
       }
-    });
-    document.getElementById("next-btn").addEventListener("click", function() {
-      document.getElementById("home-page").style.display = "none";
-      document.getElementById("graphs-page").style.display = "block";
-      drawChart(d3.select("#parameter-select").property("value"));
     });
   </script>
 </body>

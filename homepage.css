@@ -1,0 +1,148 @@
+/* GLOBAL HOMEPAGE STYLES */
+body {
+    margin: 0;
+    padding: 0;
+    background: #f7f9fc;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    line-height: 1.4;
+  }
+  
+  /* Fancy Button */
+  .fancy-button {
+    background: linear-gradient(135deg, #6dd5ed, #2193b0);
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    margin: 10px 0;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.3s ease;
+  }
+  .fancy-button:hover {
+    transform: scale(1.03);
+    background: linear-gradient(135deg, #2193b0, #6dd5ed);
+  }
+  
+  /* Homepage Container */
+  #home-page {
+    position: relative;
+    z-index: 10;
+    width: 800px;
+    margin: 10px auto;
+    background: #fff;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    text-align: center;
+    min-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    box-sizing: border-box;
+  }
+  #home-page h1 {
+    font-size: 1.8rem;
+    margin-bottom: 5px;
+  }
+  #home-page p {
+    font-size: 0.95rem;
+    line-height: 1.3;
+    max-width: 700px;
+    margin: 5px auto;
+  }
+  #home-page .project-info {
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+  }
+  #home-page footer {
+    font-size: 0.8rem;
+    margin-top: 10px;
+  }
+  
+ /* Bar Chart Container */
+#bar-chart {
+    margin: 0 auto;
+    width: 100%;
+    max-width: 900px; /* Increased from 700px to 900px */
+    height: 300px;    /* Increased from 200px to 300px */
+    position: relative;
+    z-index: 10;
+  }
+  
+  
+/* Make the entire background black with a grid pattern */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: #000; /* Black background */
+    overflow: hidden;
+  }
+  
+/* Grid background to simulate a monitor */
+#wave-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    background-color: #000;
+    background-image:
+      linear-gradient(#222 1px, transparent 1px),     /* horizontal grid lines */
+      linear-gradient(90deg, #222 1px, transparent 1px); /* vertical grid lines */
+    background-size: 20px 20px;
+  }
+  
+  #wave-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    overflow: visible;
+  }
+  
+  /* The dynamic beat path (wave) – no CSS animation here so JS controls it */
+  #wave-path {
+    stroke: #e74c3c; /* Red color */
+    stroke-width: 3;
+    stroke-dasharray: 2000;
+    stroke-dashoffset: 2000;
+    /* Note: no animation property here */
+  }
+  
+  /* Heart Rate Display */
+  #heart-rate {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    color: #fff;       /* White text */
+    font-size: 2rem;
+    font-family: sans-serif;
+    z-index: 9999;
+  }
+  
+  
+/* Make the container dark grey and text white */
+#home-page {
+    background: #333;    /* Dark grey background */
+    color: #fff;         /* White text color */
+  }
+  
+  #home-page h1,
+  #home-page p,
+  #home-page .project-info,
+  #home-page footer {
+    color: #fff;         /* Ensure all text is white */
+  }
+  
+  /* If you want the button text to remain white, you can keep or tweak its gradient */
+  #home-page .fancy-button {
+    background: linear-gradient(135deg, #6dd5ed, #2193b0);
+    color: #fff;         /* White text on the button */
+    /* ... (rest of your existing button styles) */
+  }
+  

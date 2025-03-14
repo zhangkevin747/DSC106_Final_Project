@@ -308,7 +308,7 @@
   <div id="minigame-page">
     <h1>Mini Game: Guess the Survivor!</h1>
     <p>
-      We’ll show the heart rate lines in three segments. Each time, click the line you think belongs to the survivors. 
+      We’ll show the end-tidal carbon dioxide lines in three segments. Each time, click the line you think belongs to the survivors. 
       At the end, you’ll see your total score!
     </p>
     <div id="minigame-container">
@@ -918,11 +918,11 @@
       d3.json("vital_signs_data.json").then(function(rawData) {
         const deathData = rawData["Death"].flat().map(d => ({
           time: new Date(d.Time),
-          value: +d["Solar8000/HR"]
+          value: +d["Solar8000/ETCO2"]
         })).filter(d => !isNaN(d.value));
         const survivedData = rawData["Survived"].flat().map(d => ({
           time: new Date(d.Time),
-          value: +d["Solar8000/HR"]
+          value: +d["Solar8000/ETCO2"]
         })).filter(d => !isNaN(d.value));
 
         const cutoffDate = new Date('1969-12-31T22:00:00');

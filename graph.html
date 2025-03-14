@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Graphs - Vital Signs Dashboard</title>
+  <link rel="stylesheet" href="graph.css">
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+</head>
+<body>
+  <!-- GRAPHS PAGE CONTAINER -->
+  <div id="graphs-page">
+    <h1>Survival Signals: Vital Signs Trends of Life or Loss During Exploratory Laparoscopy Surgery</h1>
+    <div id="controls">
+      <label for="parameter-select">Choose a Vital Sign:</label>
+      <select id="parameter-select">
+        <option value="Solar8000/HR" selected>Heart Rate (HR)</option>
+        <option value="Solar8000/ART_DBP">Arterial Diastolic Blood Pressure (DBP)</option>
+        <option value="Solar8000/ART_MBP">Arterial Mean Blood Pressure (MBP)</option>
+        <option value="Solar8000/ART_SBP">Arterial Systolic Blood Pressure (SBP)</option>
+        <option value="Solar8000/ETCO2">End-Tidal CO2 (ETCO2)</option>
+        <option value="Solar8000/PLETH_SPO2">Oxygen Saturation (SPO2)</option>
+      </select>
+    </div>
+    <div id="main-container">
+      <div id="chart-container">
+        <div id="chart">
+          <div class="loading">Please select a parameter to display data</div>
+        </div>
+        <div class="tooltip" id="tooltip"></div>
+      </div>
+      <div id="insights-panel">
+        <h2>Key Takeaways</h2>
+        <div id="takeaways-content"></div>
+      </div>
+    </div>
+  </div>
+  <script src="graph.js"></script>
+</body>
+</html>

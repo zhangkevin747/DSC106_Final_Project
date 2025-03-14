@@ -346,7 +346,7 @@
     </div>
   </div>
 
-  <!-- Bar Graph Script for Homepage (Unchanged) -->
+  <!-- Bar Graph Script for Homepage -->
   <script>
     d3.text("clinical_data.json").then(function(text) {
       // Parse NDJSON
@@ -424,13 +424,14 @@
               .attr("fill", "#e74c3c");
           });
       
-      // Title
+      // Title (white)
       svg.append("text")
         .attr("x", width / 2 )
         .attr("y", -10)
         .attr("text-anchor", "middle")
         .style("font-size", "16px")
         .style("font-weight", "bold")
+        .style("fill", "#fff")  /* THIS is the key line making it white */
         .text("Top 10 Operations with Most Deaths");
       
     }).catch(function(error){
@@ -438,11 +439,10 @@
     });
   </script>
 
-  <!-- Updated Script for Minigame and Graphs -->
+  <!-- Mini-Game and Graphs Script -->
   <script>
     /***************************************************************
      * MAIN GRAPH DRAWING FUNCTION (GRAPHS PAGE)
-     * - Hides tooltip pointer events until lines are fully drawn
      ***************************************************************/
     const insightsByParameter = {
       "Solar8000/HR": `
@@ -497,7 +497,6 @@
     
     function drawChart(selectedParameter) {
       d3.select("#insights-panel").style("display", "none").style("opacity", 0);
-      // Hide tooltip altogether
       d3.select("#tooltip").style("display", "none").style("opacity", 0);
       
       if (!selectedParameter) {
@@ -721,7 +720,7 @@
           if (passingLabel) passingLabel.transition().duration(1000).style("opacity", 1);
         }, survivedDuration);
         
-        // Highlight normal ranges if parameter recognized
+        // Highlight normal ranges if recognized
         if (selectedParameter in normalRanges) {
           const [normalMin, normalMax] = normalRanges[selectedParameter];
           svg.append("rect")
@@ -740,14 +739,13 @@
             .text("Normal Range");
         }
         
-        // Hover logic
-        // Disable pointer-events until after lines are fully drawn.
+        // Hover logic (disabled until lines finish)
         const hoverRect = svg.append("rect")
           .attr("width", width - margin.left - margin.right)
           .attr("height", height - margin.top - margin.bottom)
           .attr("transform", `translate(${margin.left}, ${margin.top})`)
           .style("fill", "none")
-          .style("pointer-events", "none");  // disabled initially
+          .style("pointer-events", "none");
         
         hoverRect
           .on("mousemove", function() {
@@ -856,7 +854,6 @@
           setTimeout(() => {
             d3.select("#insights-panel").style("opacity", 1);
           }, 50);
-          // Now we allow pointer events and show the tooltip
           hoverRect.style("pointer-events", "all");
         }, totalAnimationTime);
         
@@ -868,7 +865,6 @@
 
     /***************************************************************
      * MINI GAME LOGIC (3 Rounds, no immediate feedback, random lines)
-     * Now with a final fancy button to continue.
      ***************************************************************/
     let currentRound = 0;
     let userGuesses = []; // store booleans for user’s guess correctness
@@ -906,7 +902,6 @@
         .addEventListener("click", goToGraphsPage);
     }
 
-    // Segment data into 3 chunks
     function getDataSegment(fullData, roundIndex) {
       const segSize = Math.floor(fullData.length / maxRounds);
       const endIdx = segSize * (roundIndex + 1);

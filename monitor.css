@@ -1,0 +1,93 @@
+/* monitor.css */
+
+/* Fill the entire window */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: #000; /* black */
+    overflow: hidden;
+  }
+  
+  /* Main container holding all vital sign rows */
+  #monitor-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+  }
+  
+  /* Each vital-row is a horizontal flex container */
+  .vital-row {
+    display: flex;
+    flex-direction: row;
+    flex: 1 1 auto;
+    border-bottom: 1px solid #333; /* optional divider */
+  }
+  
+  /* Left side: waveform container (85% width) */
+  .wave-container {
+    position: relative;
+    width: 85%;
+    height: 100%;
+    background: #000; /* black */
+    overflow: hidden;
+  }
+  
+  /* Right side: readout container (15% width) */
+  .readout-container {
+    position: relative;
+    width: 15%;
+    height: 100%;
+    background: #111;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+  }
+  
+  /* The SVG that draws the waveform + grid */
+  .wave-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  
+  /* Wave line style */
+  .wave-line {
+    fill: none;
+    stroke-width: 2px;
+  }
+  
+  /* Label styling */
+  .readout-label {
+    font-size: 18px;
+    color: #ccc;
+    margin-bottom: 5px;
+  }
+  
+  /* Numeric value styling: split into number and unit */
+  .readout-number {
+    font-size: 36px;
+    font-weight: bold;
+  }
+  .readout-unit {
+    font-size: 18px;
+    vertical-align: super;
+  }
+
+  @keyframes borderFlash {
+    0%   { border-color: red; }
+    50%  { border-color: transparent; }
+    100% { border-color: red; }
+  }
+  
+  .border-flash {
+    border: 2px solid red;
+    animation: borderFlash 0.5s ease-in-out;
+  }
+  
+  
+  

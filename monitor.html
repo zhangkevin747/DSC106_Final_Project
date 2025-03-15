@@ -2,12 +2,23 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Smooth Scrolling Vital Signs Monitor (Non-Survivor, with Units)</title>
+  <title>Smooth Scrolling Vital Signs Monitor (Non-Survivor, with TV Style)</title>
   <link rel="stylesheet" href="monitor.css">
   <script src="https://d3js.org/d3.v5.min.js"></script>
 </head>
 <body>
-  <div id="monitor-container"></div>
+  <div id="monitor-wrapper">
+    <div id="monitor-container"></div>
+    <div id="monitor-buttons">
+      <button class="tv-button power-button">Power</button>
+      <button class="tv-button vital-button" data-key="Solar8000/HR">HR</button>
+      <button class="tv-button vital-button" data-key="Solar8000/ART_SBP">SBP</button>
+      <button class="tv-button vital-button" data-key="Solar8000/ART_MBP">MBP</button>
+      <button class="tv-button vital-button" data-key="Solar8000/ART_DBP">DBP</button>
+      <button class="tv-button vital-button" data-key="Solar8000/ETCO2">ETCO2</button>
+      <button class="tv-button vital-button" data-key="Solar8000/PLETH_SPO2">SpO2</button>
+    </div>
+  </div>
   <script src="monitor.js"></script>
 </body>
 </html>

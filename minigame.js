@@ -79,8 +79,8 @@ let userGuesses = [];
 const maxRounds = parameters.length;
 let wrongCount = 0;
 
-function goToGraphsPage() {
-  window.location.href = "graph.html";
+function goToMonitorPage() {
+  window.location.href = "monitor.html";
 }
 
 function nextRound() {
@@ -111,13 +111,13 @@ function finalizeScore() {
   
   d3.select("#minigame").html(`
     <h2>You scored ${finalScore} out of ${maxRounds}!</h2>
-    <button id="go-to-graphs-btn" class="fancy-button" style="margin-top: 15px;">
-      Click here to explore the rest of the graphs
+    <button id="go-to-monitor-btn" class="fancy-button" style="margin-top: 15px;">
+      Click here to go to the monitor
     </button>
   `);
   
-  document.getElementById("go-to-graphs-btn")
-    .addEventListener("click", goToGraphsPage);
+  document.getElementById("go-to-monitor-btn")
+    .addEventListener("click", goToMonitorPage);
 }
 
 function showFeedback(message) {
@@ -182,7 +182,7 @@ function drawMiniGameRound(roundIndex) {
 
     const allPoints = filteredDeathData.concat(filteredSurvivedData);
     const width = 600, height = 400;
-    const margin = { top: 20, right: 20, bottom: 30, left: 40 };
+    const margin = { top: 20, right: 20, bottom: 80, left: 40 };
 
     const x = d3.scaleTime()
       .domain(d3.extent(allPoints, d => d.time))

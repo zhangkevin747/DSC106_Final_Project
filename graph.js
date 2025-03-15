@@ -3,12 +3,12 @@
 function drawChart(selectedParameter) {
     d3.select("#insights-panel").style("display", "none").style("opacity", 0);
     d3.select("#tooltip").style("display", "none").style("opacity", 0);
-    
+  
     if (!selectedParameter) {
       d3.select("#chart").html('<div class="loading">Please select a parameter to display data</div>');
       return;
     }
-    
+  
     // Define insights text for each parameter.
     const insightsByParameter = {
       "Solar8000/HR": `
@@ -59,13 +59,13 @@ function drawChart(selectedParameter) {
         </ul>
       `
     };
-    
+  
     d3.select("#takeaways-content").html(insightsByParameter[selectedParameter] || "");
     d3.select("#chart").html('<div class="loading">Loading data...</div>');
-    
+  
     d3.json("vital_signs_data.json").then(function(rawData) {
       d3.select("#chart").html("");
-      
+  
       const deathData = rawData["Death"].flat().map(d => ({
         time: new Date(d.Time),
         value: +d[selectedParameter]
@@ -74,27 +74,27 @@ function drawChart(selectedParameter) {
         time: new Date(d.Time),
         value: +d[selectedParameter]
       })).filter(d => !isNaN(d.value));
-      
+  
       const cutoffDate = new Date('1969-12-31T22:00:00');
       const filteredDeathData = deathData.filter(d => d.time < cutoffDate && d.time.getFullYear() === 1969);
       const filteredSurvivedData = survivedData.filter(d => d.time < cutoffDate && d.time.getFullYear() === 1969);
-      
+  
       const every30thDeathData = filteredDeathData.filter((d, i) => i % 30 === 0);
       const every30thSurvivedData = filteredSurvivedData.filter((d, i) => i % 30 === 0);
-      
+  
       const allData = every30thDeathData.concat(every30thSurvivedData);
       if (allData.length === 0) {
         d3.select("#chart").html('<div class="loading">No data available for this parameter.</div>');
         return;
       }
-      
+  
       const parameterName = selectedParameter.split('/').pop();
       const chartContainer = document.getElementById('chart');
       const containerWidth = chartContainer.clientWidth;
       const width = Math.min(containerWidth - 20, 1400);
       const height = Math.min(window.innerHeight * 0.8, 700);
       const margin = { top: 40, right: 150, bottom: 80, left: 100 };
-      
+  
       const dataMin = d3.min(allData, d => d.value);
       const dataMax = d3.max(allData, d => d.value);
       const normalRanges = {
@@ -105,7 +105,7 @@ function drawChart(selectedParameter) {
         "Solar8000/ETCO2": [35, 45],
         "Solar8000/PLETH_SPO2": [95, 100]
       };
-      
+  
       let yMin = dataMin * 0.95;
       let yMax = dataMax * 1.05;
       if (selectedParameter in normalRanges) {
@@ -113,22 +113,22 @@ function drawChart(selectedParameter) {
         yMin = Math.min(yMin, normalMin * 0.95);
         yMax = Math.max(yMax, normalMax * 1.05);
       }
-      
+  
       const x = d3.scaleTime()
         .domain(d3.extent(allData, d => d.time))
         .range([margin.left, width - margin.right]);
-      
+  
       const y = d3.scaleLinear()
         .domain([yMin, yMax])
         .nice()
         .range([height - margin.bottom, margin.top]);
-      
+  
       const svg = d3.select("#chart").append("svg")
         .attr("width", width)
         .attr("height", height)
         .attr("viewBox", `0 0 ${width} ${height}`)
         .attr("preserveAspectRatio", "xMidYMid meet");
-      
+  
       svg.append("g")
         .attr("class", "grid")
         .attr("transform", `translate(0, ${height - margin.bottom})`)
@@ -153,34 +153,34 @@ function drawChart(selectedParameter) {
           .attr("stroke", "#e0e0e0")
           .attr("stroke-opacity", 0.7)
         );
-      
+  
       svg.append("text")
         .attr("class", "chart-title")
         .attr("x", width / 2)
         .attr("y", margin.top / 2)
         .text(`${parameterName} Over Time`);
-      
+  
       svg.append("g")
         .attr("transform", `translate(0, ${height - margin.bottom})`)
         .call(d3.axisBottom(x).ticks(8))
         .call(g => g.select(".domain").attr("stroke", "#ccc"))
         .call(g => g.selectAll(".tick line").attr("stroke", "#ccc"))
         .call(g => g.selectAll(".tick text").attr("fill", "#666"));
-      
+  
       svg.append("g")
         .attr("transform", `translate(${margin.left}, 0)`)
         .call(d3.axisLeft(y))
         .call(g => g.select(".domain").attr("stroke", "#ccc"))
         .call(g => g.selectAll(".tick line").attr("stroke", "#ccc"))
         .call(g => g.selectAll(".tick text").attr("fill", "#666"));
-      
+  
       svg.append("text")
         .attr("class", "axis-label")
         .attr("text-anchor", "middle")
         .attr("x", width / 2)
         .attr("y", height - 10)
         .text("Time");
-      
+  
       svg.append("text")
         .attr("class", "axis-label")
         .attr("text-anchor", "middle")
@@ -188,17 +188,17 @@ function drawChart(selectedParameter) {
         .attr("x", -(height / 2))
         .attr("y", 20)
         .text(parameterName);
-      
+  
       const lineDeath = d3.line()
         .x(d => x(d.time))
         .y(d => y(d.value))
         .curve(d3.curveMonotoneX);
-      
+  
       const lineSurvived = d3.line()
         .x(d => x(d.time))
         .y(d => y(d.value))
         .curve(d3.curveMonotoneX);
-      
+  
       function animateLine(path, duration, delay = 0) {
         const totalLength = path.node().getTotalLength();
         path
@@ -210,7 +210,7 @@ function drawChart(selectedParameter) {
           .ease(d3.easeLinear)
           .attr("stroke-dashoffset", 0);
       }
-      
+  
       const deathLinePath = svg.append("path")
         .datum(every30thDeathData)
         .style("stroke", "#e74c3c")
@@ -218,7 +218,7 @@ function drawChart(selectedParameter) {
         .style("fill", "none")
         .style("opacity", 0.8)
         .attr("d", lineDeath);
-      
+  
       const survivedLinePath = svg.append("path")
         .datum(every30thSurvivedData)
         .style("stroke", "#2ecc71")
@@ -226,22 +226,22 @@ function drawChart(selectedParameter) {
         .style("fill", "none")
         .style("opacity", 0.8)
         .attr("d", lineSurvived);
-      
+  
       const totalTimeRange = x.domain()[1] - x.domain()[0];
       const baseAnimationDuration = 6000;
       const speedFactor = baseAnimationDuration / totalTimeRange;
-      
+  
       const deathStartTime = d3.min(every30thDeathData, d => d.time);
       const deathEndTime = d3.max(every30thDeathData, d => d.time);
       const deathDuration = (deathEndTime - deathStartTime) * speedFactor;
-      
+  
       const survivedStartTime = d3.min(every30thSurvivedData, d => d.time);
       const survivedEndTime = d3.max(every30thSurvivedData, d => d.time);
       const survivedDuration = (survivedEndTime - survivedStartTime) * speedFactor;
-      
+  
       animateLine(deathLinePath, deathDuration);
       animateLine(survivedLinePath, survivedDuration, 200);
-      
+  
       const deathTimeVal = d3.max(every30thDeathData, d => d.time);
       let passingRegion, passingLabel;
       if (deathTimeVal) {
@@ -261,12 +261,12 @@ function drawChart(selectedParameter) {
           .style("opacity", 0)
           .text("Time After Passing");
       }
-      
+  
       setTimeout(() => {
         if (passingRegion) passingRegion.transition().duration(1000).style("opacity", 0.2);
         if (passingLabel) passingLabel.transition().duration(1000).style("opacity", 1);
       }, survivedDuration);
-      
+  
       if (selectedParameter in normalRanges) {
         const [normalMin, normalMax] = normalRanges[selectedParameter];
         svg.append("rect")
@@ -284,14 +284,14 @@ function drawChart(selectedParameter) {
           .attr("font-weight", "bold")
           .text("Normal Range");
       }
-      
+  
       const hoverRect = svg.append("rect")
         .attr("width", width - margin.left - margin.right)
         .attr("height", height - margin.top - margin.bottom)
         .attr("transform", `translate(${margin.left}, ${margin.top})`)
         .style("fill", "none")
         .style("pointer-events", "none");
-      
+  
       hoverRect
         .on("mousemove", function() {
           const [mouseX] = d3.mouse(this);
@@ -406,22 +406,30 @@ function drawChart(selectedParameter) {
     });
   }
   
-  // Redraw the chart on window resize
-  window.addEventListener('resize', function () {
-    const selectedParameter = d3.select("#parameter-select").property("value");
-    if (document.getElementById("graphs-page").style.display !== "none" && selectedParameter) {
+  // When the page loads, check for a query parameter and update the selector if present.
+  document.addEventListener("DOMContentLoaded", function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const param = urlParams.get("parameter");
+    if (param) {
+      // Set the drop-down's value and trigger the change event so the correct graph is drawn.
+      d3.select("#parameter-select").property("value", param).dispatch("change");
+    } else {
+      // Otherwise, use the current value of the selector.
+      const selectedParameter = d3.select("#parameter-select").property("value");
       drawChart(selectedParameter);
     }
   });
   
-  // On page load, draw the chart using the default parameter.
-  document.addEventListener("DOMContentLoaded", function() {
-    const selectedParameter = d3.select("#parameter-select").property("value");
-    drawChart(selectedParameter);
-  });
-  
-  // Also update the chart when the parameter selector changes.
+  // Also update the chart when the drop-down selection changes.
   document.getElementById("parameter-select").addEventListener("change", function() {
     drawChart(this.value);
+  });
+  
+  // Redraw the chart on window resize.
+  window.addEventListener('resize', function () {
+    const selectedParameter = d3.select("#parameter-select").property("value");
+    if (document.getElementById("graphs-page") && document.getElementById("graphs-page").style.display !== "none" && selectedParameter) {
+      drawChart(selectedParameter);
+    }
   });
   

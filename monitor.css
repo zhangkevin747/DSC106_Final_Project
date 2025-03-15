@@ -1,29 +1,45 @@
-/* monitor.css */
-
 /* Fill the entire window */
 html, body {
     margin: 0;
     padding: 0;
     width: 100%;
     height: 100%;
-    background: #000; /* black */
+    background: #000; /* black behind the monitor */
     overflow: hidden;
   }
   
-  /* Main container holding all vital sign rows */
-  #monitor-container {
+  /* Outer wrapper styled like an old TV bezel in cream color */
+  #monitor-wrapper {
+    width: 100vw;
+    height: 100vh;
+    box-sizing: border-box;
+    background: #f5e1a4; /* cream color */
+    border: 20px solid #ccc;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
     display: flex;
     flex-direction: column;
-    width: 100%;
-    height: 100%;
+  }
+  
+  /* Main container holding the vital sign rows (the inner screen) */
+  #monitor-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #000; /* inner screen remains black */
+    overflow: hidden;
   }
   
   /* Each vital-row is a horizontal flex container */
   .vital-row {
     display: flex;
     flex-direction: row;
-    flex: 1 1 auto;
-    border-bottom: 1px solid #333; /* optional divider */
+    flex: 1;
+    border-bottom: 1px solid #333;
+  }
+  
+  /* Highlight active row if needed */
+  .vital-row.active {
+    outline: 3px solid #fff;
   }
   
   /* Left side: waveform container (85% width) */
@@ -31,7 +47,7 @@ html, body {
     position: relative;
     width: 85%;
     height: 100%;
-    background: #000; /* black */
+    background: #000;
     overflow: hidden;
   }
   
@@ -77,17 +93,47 @@ html, body {
     font-size: 18px;
     vertical-align: super;
   }
-
+  
+  /* Flash border effect for the readout container */
   @keyframes borderFlash {
     0%   { border-color: red; }
     50%  { border-color: transparent; }
     100% { border-color: red; }
   }
-  
   .border-flash {
     border: 2px solid red;
     animation: borderFlash 0.5s ease-in-out;
   }
   
+  /* Button bar placed inside the bottom of the bezel */
+  #monitor-buttons {
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    background: #333;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+  }
   
+  /* TV control buttons styling */
+  .tv-button {
+    background: #f5e1a4;
+    color: #000;
+    font-size: 16px;
+    padding: 8px 12px;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .tv-button:hover {
+    background: #e0c887;
+  }
+  /* Power button styled in red */
+  .tv-button.power-button {
+    background: red;
+    color: white;
+    border: 2px solid darkred;
+  }
   

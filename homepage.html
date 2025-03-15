@@ -9,12 +9,12 @@
   <script src="https://d3js.org/d3.v5.min.js"></script>
 </head>
 <body>
-  <!-- BLACK GRID BACKGROUND WITH ECG WAVE -->
+  <!-- BLACK GRID BACKGROUND WITH DYNAMIC ECG WAVE -->
   <div id="wave-background">
     <svg id="wave-svg" viewBox="0 0 1200 600" preserveAspectRatio="none">
       <!-- Dynamic heartbeat wave (generated via JS) -->
       <path id="wave-path" fill="none"></path>
-      <!-- Flat line (initially hidden) -->
+      <!-- Flat line (not used here since beat is continuous) -->
       <path id="flat-path"
         d="M 0,300 L 1200,300"
         stroke="#e74c3c"
@@ -24,9 +24,11 @@
     </svg>
   </div>
 
-  <!-- Dynamic Heart Rate Display (upper right) -->
-  <div id="heart-rate">72 BPM</div>
-      
+  <!-- BPM and Heart Display (upper right) -->
+  <div id="bpm-container">
+    <div id="heart-rate">72 BPM</div>
+    <div id="heart-icon">❤️</div>
+  </div>
 
   <!-- HOME PAGE CONTAINER -->
   <div id="home-page">

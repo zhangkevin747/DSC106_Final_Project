@@ -1,18 +1,85 @@
-/* MINIGAME PAGE STYLES */
-body {
+/* GLOBAL STYLES FOR THE MINIGAME PAGE INCLUDING ECG BACKGROUND */
+
+html, body {
     margin: 0;
     padding: 0;
-    background: #f7f9fc;
+    width: 100%;
+    height: 100%;
+    background: #000; /* Black background behind the grid */
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: #333;
+    color: #fff; /* Default text color white */
+    overflow: hidden; /* Hide any overflow */
     line-height: 1.4;
   }
+  
+  /* ECG Grid Background (like the homepage) */
+  #wave-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0; /* Behind everything else */
+    background-color: #000;
+    background-image:
+      linear-gradient(#222 1px, transparent 1px),
+      linear-gradient(90deg, #222 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  
+  #wave-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    overflow: visible;
+  }
+  
+  #wave-path {
+    stroke: #e74c3c; /* Red ECG wave */
+    stroke-width: 3;
+    fill: none;
+    stroke-dasharray: 2000;
+    stroke-dashoffset: 2000;
+    /* No CSS animation; controlled by JS in minigame.js */
+  }
+  
+  /* BPM & Heart Icon in the upper-right */
+  #bpm-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    text-align: center;
+    z-index: 9999;
+  }
+  
+  #heart-rate {
+    font-size: 2rem;
+    margin-bottom: 5px;
+  }
+  
+  #heart-icon {
+    font-size: 2rem;
+    color: #e74c3c;
+  }
+  
+  /* Heart Pulse Animation */
+  @keyframes heartPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+  }
+  .heart-beat {
+    animation: heartPulse 0.3s ease-in-out;
+  }
+  
+  /* MINIGAME PAGE CONTAINER (Dark grey, white text, on top of wave) */
   #minigame-page {
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: linear-gradient(135deg, #8e44ad, #e67e22);
-    color: #fff;
+    background: #333; /* Dark grey background */
+    color: #fff;      /* White text */
     padding: 20px;
     margin: 10px auto;
     max-width: 800px;
@@ -21,7 +88,10 @@ body {
     text-align: center;
     max-height: 100vh;
     overflow: hidden;
+    position: relative;
+    z-index: 10; /* Ensure it's above the wave background */
   }
+  
   #minigame-page h1 {
     font-size: 1.6rem;
     margin-bottom: 10px;
@@ -31,6 +101,8 @@ body {
     margin-bottom: 15px;
     line-height: 1.4;
   }
+  
+  /* Container that holds the minigame chart area */
   #minigame-container {
     margin: 10px auto;
     width: 100%;
@@ -40,12 +112,16 @@ body {
     border-radius: 8px;
     padding: 15px;
     text-align: center;
-    color: #333;
+    color: #333;  /* Dark text for the chart area */
+    position: relative;
+    z-index: 10;
   }
+  
   #minigame {
     margin: 0 auto;
     position: relative;
   }
+  
   #minigame-popup {
     position: absolute;
     background: #fff;
@@ -68,4 +144,23 @@ body {
       padding: 15px;
     }
   }
+
+  /* For 1 total wrong answer, subtle red border */
+#minigame-page.wrong1 {
+    border: 4px solid #e74c3c;
+  }
+  
+  /* For 2+ total wrong answers, thicker + pulsating border */
+  #minigame-page.wrong2 {
+    border: 8px solid #e74c3c;
+    animation: pulse 1s infinite;
+  }
+  
+  @keyframes pulse {
+    0% { box-shadow: 0 0 5px #e74c3c; }
+    50% { box-shadow: 0 0 20px #e74c3c; }
+    100% { box-shadow: 0 0 5px #e74c3c; }
+  }
+  
+  
   

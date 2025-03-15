@@ -5,9 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mini Game - Vital Signs Dashboard</title>
   <link rel="stylesheet" href="minigame.css">
+  <!-- D3 Library -->
   <script src="https://d3js.org/d3.v5.min.js"></script>
 </head>
 <body>
+  <!-- BLACK GRID BACKGROUND WITH ECG WAVE -->
+  <div id="wave-background">
+    <svg id="wave-svg" viewBox="0 0 1200 600" preserveAspectRatio="none">
+      <!-- Dynamic heartbeat wave (drawn via JS) -->
+      <path id="wave-path" fill="none"></path>
+      <!-- Flat line (unused here since we run continuously) -->
+      <path id="flat-path"
+        d="M 0,300 L 1200,300"
+        stroke="#e74c3c"
+        stroke-width="3"
+        style="display: none;"
+      />
+    </svg>
+  </div>
+
+  <!-- BPM + Heart in the upper-right corner -->
+  <div id="bpm-container">
+    <div id="heart-rate">72 BPM</div>
+    <div id="heart-icon">❤️</div>
+  </div>
+
   <!-- MINIGAME PAGE CONTAINER -->
   <div id="minigame-page">
     <h1>Mini Game: Guess the Survivor!</h1>
@@ -21,6 +43,7 @@
       </div>
     </div>
   </div>
+
   <script src="minigame.js"></script>
 </body>
 </html>

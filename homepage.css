@@ -2,36 +2,19 @@
 body {
     margin: 0;
     padding: 0;
-    background: #f7f9fc;
+    background: #000; /* Black background for grid */
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: #333;
+    color: #fff; /* Default text white */
     line-height: 1.4;
   }
   
-  /* Fancy Button */
-  .fancy-button {
-    background: linear-gradient(135deg, #6dd5ed, #2193b0);
-    color: #fff;
-    border: none;
-    border-radius: 30px;
-    padding: 10px 20px;
-    font-size: 1rem;
-    margin: 10px 0;
-    cursor: pointer;
-    transition: transform 0.2s ease, background 0.3s ease;
-  }
-  .fancy-button:hover {
-    transform: scale(1.03);
-    background: linear-gradient(135deg, #2193b0, #6dd5ed);
-  }
-  
-  /* Homepage Container */
+  /* Homepage Container - dark grey background with white text */
   #home-page {
     position: relative;
     z-index: 10;
     width: 800px;
     margin: 10px auto;
-    background: #fff;
+    background: #333; /* Dark grey */
     padding: 10px;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
@@ -61,29 +44,18 @@ body {
     margin-top: 10px;
   }
   
- /* Bar Chart Container */
-#bar-chart {
+  /* Bar Chart Container */
+  #bar-chart {
     margin: 0 auto;
     width: 100%;
-    max-width: 900px; /* Increased from 700px to 900px */
-    height: 300px;    /* Increased from 200px to 300px */
+    max-width: 900px; /* Increased width */
+    height: 300px;    /* Increased height */
     position: relative;
     z-index: 10;
   }
   
-  
-/* Make the entire background black with a grid pattern */
-html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    background: #000; /* Black background */
-    overflow: hidden;
-  }
-  
-/* Grid background to simulate a monitor */
-#wave-background {
+  /* ECG Wave Background with Grid */
+  #wave-background {
     position: fixed;
     top: 0;
     left: 0;
@@ -93,56 +65,66 @@ html, body {
     z-index: 0;
     background-color: #000;
     background-image:
-      linear-gradient(#222 1px, transparent 1px),     /* horizontal grid lines */
-      linear-gradient(90deg, #222 1px, transparent 1px); /* vertical grid lines */
+      linear-gradient(#222 1px, transparent 1px),
+      linear-gradient(90deg, #222 1px, transparent 1px);
     background-size: 20px 20px;
   }
-  
   #wave-svg {
     width: 100%;
     height: 100%;
     display: block;
     overflow: visible;
   }
-  
-  /* The dynamic beat path (wave) – no CSS animation here so JS controls it */
   #wave-path {
-    stroke: #e74c3c; /* Red color */
+    stroke: #e74c3c; /* Red ECG wave */
     stroke-width: 3;
+    fill: none;
     stroke-dasharray: 2000;
     stroke-dashoffset: 2000;
-    /* Note: no animation property here */
+    /* No CSS animation here; controlled via JS */
   }
   
-  /* Heart Rate Display */
-  #heart-rate {
+  /* BPM and Heart Display */
+  #bpm-container {
     position: fixed;
     top: 20px;
     right: 20px;
-    color: #fff;       /* White text */
-    font-size: 2rem;
-    font-family: sans-serif;
+    text-align: center;
     z-index: 9999;
   }
-  
-  
-/* Make the container dark grey and text white */
-#home-page {
-    background: #333;    /* Dark grey background */
-    color: #fff;         /* White text color */
+  #heart-rate {
+    font-size: 2rem;
+    margin-bottom: 5px;
+  }
+  #heart-icon {
+    font-size: 2rem;
+    color: #e74c3c;
   }
   
-  #home-page h1,
-  #home-page p,
-  #home-page .project-info,
-  #home-page footer {
-    color: #fff;         /* Ensure all text is white */
+  /* Heart Pulse Animation */
+  @keyframes heartPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+  }
+  .heart-beat {
+    animation: heartPulse 0.3s ease-in-out;
   }
   
-  /* If you want the button text to remain white, you can keep or tweak its gradient */
-  #home-page .fancy-button {
+  /* Fancy Button */
+  .fancy-button {
     background: linear-gradient(135deg, #6dd5ed, #2193b0);
-    color: #fff;         /* White text on the button */
-    /* ... (rest of your existing button styles) */
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    margin: 10px 0;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.3s ease;
+  }
+  .fancy-button:hover {
+    transform: scale(1.03);
+    background: linear-gradient(135deg, #2193b0, #6dd5ed);
   }
   

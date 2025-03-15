@@ -1,12 +1,8 @@
 /***************************************************************
  * 1) DYNAMIC HEARTBEAT SIMULATION (ECG) for the Minigame Page
  ***************************************************************/
-
-// Global BPM range persists across rounds (only increased if a round is answered incorrectly).
-let currentBpmRange = [60, 80];
-
-// We'll use this flag to stop the heartbeat if the user ends with 0 out of 3.
-let isDead = false;
+let currentBpmRange = [60, 80]; // persists across rounds
+let isDead = false; // if the user scores 0 out of 3, set this to true
 
 const heartRateElement = document.getElementById('heart-rate');
 const heartIconElement = document.getElementById('heart-icon');
@@ -18,39 +14,21 @@ svgWave.select("#dynamic-beat").remove();
 const baseline = 300;
 
 function beat() {
-  // If user is "dead" (0 out of 3), do not continue animating.
-  if (isDead) return;
+  if (isDead) return; // Stop heartbeat if player is "dead"
 
   const [minBpm, maxBpm] = currentBpmRange;
   const bpm = Math.floor(Math.random() * (maxBpm - minBpm + 1)) + minBpm;
   heartRateElement.textContent = bpm + " BPM";
 
-  // Pulse the heart icon (unless isDead is true).
   heartIconElement.classList.add("heart-beat");
-  setTimeout(() => {
-    heartIconElement.classList.remove("heart-beat");
-  }, 300);
+  setTimeout(() => { heartIconElement.classList.remove("heart-beat"); }, 300);
 
-  // Adjust beat duration based on BPM range.
-  let speedMultiplier;
-  if (maxBpm <= 80) {
-    speedMultiplier = 1.5;
-  } else if (maxBpm <= 125) {
-    speedMultiplier = 1.2;
-  } else {
-    speedMultiplier = 1.0;
-  }
+  // Adjust speed multiplier based on BPM range.
+  let speedMultiplier = maxBpm <= 80 ? 1.5 : (maxBpm <= 125 ? 1.2 : 1.0);
   const beatDuration = (60000 / bpm) * speedMultiplier;
   
-  // More dramatic amplitude for higher BPM.
-  let amplitudeRange;
-  if (maxBpm <= 80) {
-    amplitudeRange = [20, 100];
-  } else if (maxBpm <= 125) {
-    amplitudeRange = [40, 160];
-  } else {
-    amplitudeRange = [60, 200];
-  }
+  // Map BPM to amplitude; more dramatic peaks for higher ranges.
+  let amplitudeRange = maxBpm <= 80 ? [20, 100] : (maxBpm <= 125 ? [40, 160] : [60, 200]);
   const amplitude = d3.scaleLinear().domain([minBpm, maxBpm]).range(amplitudeRange)(bpm);
 
   const beatData = [
@@ -66,10 +44,7 @@ function beat() {
     .y(d => d.y)
     .curve(d3.curveMonotoneX);
 
-  // Remove any old beat path.
   svgWave.select("#dynamic-beat").remove();
-
-  // Append new path for the current beat.
   const path = svgWave.append("path")
     .attr("id", "dynamic-beat")
     .attr("d", lineGenerator(beatData))
@@ -88,7 +63,6 @@ function beat() {
       .on("end", beat);
 }
 
-// Start the continuous heartbeat simulation.
 beat();
 
 /***************************************************************
@@ -103,7 +77,6 @@ const parameters = [
 let currentRound = 0;
 let userGuesses = [];
 const maxRounds = parameters.length;
-// Track the total number of wrong answers
 let wrongCount = 0;
 
 function goToGraphsPage() {
@@ -123,29 +96,26 @@ function finalizeScore() {
   const finalScore = userGuesses.filter(Boolean).length;
   d3.select("#minigame").selectAll("svg").remove();
   
-  // If user scored 0 out of 3, "kill" the heartbeat
   if (finalScore === 0) {
-    // Stop the beat function
     isDead = true;
-    // Force BPM to 0
     heartRateElement.textContent = "0 BPM";
-    // Remove any existing dynamic beat
+    heartIconElement.innerHTML = "💀";
+    heartIconElement.classList.remove("heart-beat");
     svgWave.select("#dynamic-beat").remove();
-    // Draw a flat red line
     svgWave.append("path")
       .attr("d", "M 0,300 L 1200,300")
       .attr("stroke", "#e74c3c")
       .attr("stroke-width", 3)
       .attr("fill", "none");
   }
-
+  
   d3.select("#minigame").html(`
     <h2>You scored ${finalScore} out of ${maxRounds}!</h2>
     <button id="go-to-graphs-btn" class="fancy-button" style="margin-top: 15px;">
       Click here to explore the rest of the graphs
     </button>
   `);
-
+  
   document.getElementById("go-to-graphs-btn")
     .addEventListener("click", goToGraphsPage);
 }
@@ -154,18 +124,15 @@ function showFeedback(message) {
   const popup = d3.select("#minigame-popup");
   popup.html(message)
        .style("display", "block")
-       .transition()
-         .duration(300)
-         .style("opacity", 1);
+       .transition().duration(300)
+       .style("opacity", 1);
   setTimeout(() => {
-    popup.transition()
-         .duration(300)
+    popup.transition().duration(300)
          .style("opacity", 0)
          .on("end", () => popup.style("display", "none"));
   }, 1000);
 }
 
-// Add or update a red border effect if user is wrong
 function updateBorderEffect() {
   const container = document.getElementById("minigame-page");
   if (wrongCount === 1) {
@@ -207,6 +174,7 @@ function drawMiniGameRound(roundIndex) {
       { points: filteredSurvivedData, label: "survived" }
     ];
 
+    // Randomly shuffle the lines
     for (let i = linesData.length - 1; i > 0; i--) {
       const randIndex = Math.floor(Math.random() * (i + 1));
       [linesData[i], linesData[randIndex]] = [linesData[randIndex], linesData[i]];
@@ -228,7 +196,6 @@ function drawMiniGameRound(roundIndex) {
       .nice()
       .range([height - margin.bottom, margin.top]);
 
-    // Create an SVG for the minigame chart (no axes).
     const svgMini = d3.select("#minigame")
       .append("svg")
       .attr("width", width)
@@ -239,7 +206,6 @@ function drawMiniGameRound(roundIndex) {
       .y(d => y(d.value))
       .curve(d3.curveMonotoneX);
 
-    // One attempt per round
     linesData.forEach(lineObj => {
       svgMini.append("path")
         .datum(lineObj.points)
@@ -254,19 +220,18 @@ function drawMiniGameRound(roundIndex) {
           d3.select(this).transition().duration(150).style("stroke", "#888");
         })
         .on("click", () => {
+          // One attempt per round
           if (lineObj.label === "survived") {
             userGuesses[roundIndex] = true;
             showFeedback("Correct!");
           } else {
             userGuesses[roundIndex] = false;
             wrongCount++;
-            // Increase BPM range cumulatively:
             if (wrongCount === 1) {
               currentBpmRange = [110, 125];
             } else if (wrongCount === 2) {
               currentBpmRange = [130, 150];
             }
-            // Update the red border effect
             updateBorderEffect();
             showFeedback("Wrong!");
           }
@@ -283,8 +248,8 @@ function initMiniGame() {
   currentRound = 0;
   userGuesses = [];
   wrongCount = 0;
-  currentBpmRange = [60, 80]; // Start with the default range
-  // Remove any existing red border classes
+  isDead = false;
+  currentBpmRange = [60, 80];
   document.getElementById("minigame-page").classList.remove("wrong1", "wrong2");
   drawMiniGameRound(currentRound);
 }

@@ -1,5 +1,3 @@
-// homepage.js - Combined code for bar chart and dynamic heartbeat simulation
-
 // ----------------- Bar Chart Code -----------------
 d3.text("clinical_data.json").then(function(text) {
     const data = text.split("\n")
@@ -50,19 +48,18 @@ d3.text("clinical_data.json").then(function(text) {
     
     // Y Axis
     svgBar.append("g")
-    .call(d3.axisLeft(y));
-
-    // Y-axis title: "Number of Deaths" with a smaller font size
+      .call(d3.axisLeft(y));
+    
+    // Y-axis title
     svgBar.append("text")
-    .attr("transform", "rotate(-90)")
-    .attr("y", -margin.left + 15)
-    .attr("x", -height / 2)
-    .attr("dy", "1em")
-    .style("text-anchor", "middle")
-    .style("fill", "#fff")
-    .style("font-size", "12px")  // Reduced font size here
-    .text("Number of Deaths");
-
+      .attr("transform", "rotate(-90)")
+      .attr("y", -margin.left + 15)
+      .attr("x", -height / 2)
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .style("fill", "#fff")
+      .style("font-size", "12px")
+      .text("Number of Deaths");
     
     // Bars: Light grey by default, red if it’s the max bar
     svgBar.selectAll(".bar")
@@ -96,83 +93,52 @@ d3.text("clinical_data.json").then(function(text) {
     console.error("Error loading clinical data:", error);
   });
   
-  // When the homepage button is clicked, hide the wave background and navigate to minigame.html
   document.getElementById("home-next-btn").addEventListener("click", function() {
     document.getElementById("wave-background").style.display = "none";
     window.location.href = "minigame.html";
   });
   
-  // ----------------- Dynamic Heartbeat Simulation -----------------
-  // This section dynamically generates an ECG-like beat and updates the BPM display and heart icon
-  
-  const heartRateElement = document.getElementById('heart-rate');
-  const heartIconElement = document.getElementById('heart-icon');
-  const svgWave = d3.select("#wave-svg");
-  
-  // Remove any previous dynamic beat path if present.
+// ----------------- Dynamic Heartbeat Simulation -----------------
+const heartRateElement = document.getElementById('heart-rate');
+const heartIconElement = document.getElementById('heart-icon');
+const svgWave = d3.select("#wave-svg");
+svgWave.select("#dynamic-beat").remove();
+const baseline = 300;
+function beat() {
+  const bpm = Math.floor(Math.random() * 21) + 60;
+  heartRateElement.textContent = bpm + " BPM";
+  heartIconElement.classList.add("heart-beat");
+  setTimeout(() => {
+    heartIconElement.classList.remove("heart-beat");
+  }, 300);
+  const beatDuration = (60000 / bpm) * 1.5;
+  const amplitude = d3.scaleLinear().domain([60, 80]).range([20, 100])(bpm);
+  const beatData = [
+    { x: 0, y: baseline },
+    { x: beatDuration * 0.2, y: baseline - amplitude },
+    { x: beatDuration * 0.25, y: baseline + amplitude * 0.3 },
+    { x: beatDuration, y: baseline }
+  ];
+  const totalBeatWidth = 1200;
+  const lineGenerator = d3.line()
+    .x(d => d.x / beatDuration * totalBeatWidth)
+    .y(d => d.y)
+    .curve(d3.curveMonotoneX);
   svgWave.select("#dynamic-beat").remove();
-  
-  // Baseline y-coordinate (in SVG viewBox units)
-  const baseline = 300;
-  
-  // Use BPM range 60 to 80, slower beat, and more pronounced peaks.
-  function beat() {
-    // Generate a random BPM value between 60 and 80
-    const bpm = Math.floor(Math.random() * 21) + 60;
-    heartRateElement.textContent = bpm + " BPM";
-    
-    // Pulse the heart icon by adding a CSS class, then remove it after 300ms
-    heartIconElement.classList.add("heart-beat");
-    setTimeout(() => {
-      heartIconElement.classList.remove("heart-beat");
-    }, 300);
-    
-    // Compute beat duration (in ms) and slow it down by a factor (e.g., 1.5)
-    const beatDuration = (60000 / bpm) * 1.5;
-    
-    // Map BPM to a spike amplitude (exaggerate differences: 60 BPM -> 20, 80 BPM -> 100)
-    const amplitude = d3.scaleLinear().domain([60, 80]).range([20, 100])(bpm);
-    
-    // Create data points for one beat (a simple QRS-like waveform)
-    const beatData = [
-      { x: 0, y: baseline },
-      { x: beatDuration * 0.2, y: baseline - amplitude },      // Spike peak
-      { x: beatDuration * 0.25, y: baseline + amplitude * 0.3 },   // Brief dip below baseline
-      { x: beatDuration, y: baseline }                           // Return to baseline
-    ];
-    
-    // Define total width (in viewBox units) for the beat (using full SVG width of 1200)
-    const totalBeatWidth = 1200;
-    
-    // Create a D3 line generator for the beat path
-    const lineGenerator = d3.line()
-      .x(d => d.x / beatDuration * totalBeatWidth)
-      .y(d => d.y)
-      .curve(d3.curveMonotoneX);
-    
-    // Remove any previous beat path
-    svgWave.select("#dynamic-beat").remove();
-    
-    // Append a new path element for the current beat
-    const path = svgWave.append("path")
-      .attr("id", "dynamic-beat")
-      .attr("d", lineGenerator(beatData))
-      .attr("stroke", "#e74c3c")
-      .attr("stroke-width", 3)
-      .attr("fill", "none");
-    
-    // Animate the drawing of the beat using stroke-dashoffset
-    const totalLength = path.node().getTotalLength();
-    path
-      .attr("stroke-dasharray", totalLength)
-      .attr("stroke-dashoffset", totalLength)
-      .transition()
-        .duration(beatDuration)
-        .ease(d3.easeLinear)
-        .attr("stroke-dashoffset", 0)
-        .on("end", beat);
-  }
-  
-  // Start the dynamic heartbeat simulation
-  beat();
-  
+  const path = svgWave.append("path")
+    .attr("id", "dynamic-beat")
+    .attr("d", lineGenerator(beatData))
+    .attr("stroke", "#e74c3c")
+    .attr("stroke-width", 3)
+    .attr("fill", "none");
+  const totalLength = path.node().getTotalLength();
+  path
+    .attr("stroke-dasharray", totalLength)
+    .attr("stroke-dashoffset", totalLength)
+    .transition()
+      .duration(beatDuration)
+      .ease(d3.easeLinear)
+      .attr("stroke-dashoffset", 0)
+      .on("end", beat);
+}
+beat();

@@ -9,33 +9,28 @@
   <script src="https://d3js.org/d3.v5.min.js"></script>
 </head>
 <body>
-  <!-- BLACK GRID BACKGROUND WITH ECG WAVE -->
+  <!-- BLACK GRID BACKGROUND WITH DYNAMIC ECG WAVE -->
   <div id="wave-background">
     <svg id="wave-svg" viewBox="0 0 1200 600" preserveAspectRatio="none">
-      <!-- Dynamic heartbeat wave (drawn via JS) -->
+      <!-- Dynamic heartbeat wave (generated via JS) -->
       <path id="wave-path" fill="none"></path>
-      <!-- Flat line (unused here since we run continuously) -->
-      <path id="flat-path"
-        d="M 0,300 L 1200,300"
-        stroke="#e74c3c"
-        stroke-width="3"
-        style="display: none;"
-      />
+      <!-- Flat line (unused here because the beat is continuous) -->
+      <path id="flat-path" d="M 0,300 L 1200,300" stroke="#e74c3c" stroke-width="3" style="display: none;"></path>
     </svg>
   </div>
 
-  <!-- BPM + Heart in the upper-right corner -->
+  <!-- BPM and Heart Display (upper right) -->
   <div id="bpm-container">
     <div id="heart-rate">72 BPM</div>
     <div id="heart-icon">❤️</div>
   </div>
 
-  <!-- MINIGAME PAGE CONTAINER -->
+  <!-- MINIGAME PAGE CONTAINER (centered on the page) -->
   <div id="minigame-page">
     <h1>Mini Game: Guess the Survivor!</h1>
     <p>
-      We’ll show the end-tidal carbon dioxide lines in three segments. Each time, click the line you think belongs to the survivors.
-      At the end, you’ll see your total score!
+      For each round, click the line you think represents survivors.
+      You get one attempt per round.
     </p>
     <div id="minigame-container">
       <div id="minigame">

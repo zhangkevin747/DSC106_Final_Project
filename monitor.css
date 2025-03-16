@@ -51,7 +51,6 @@ html, body {
     overflow: hidden;
   }
   
-  /* Right side: readout container (15% width) */
   .readout-container {
     position: relative;
     width: 15%;
@@ -62,7 +61,9 @@ html, body {
     justify-content: center;
     align-items: center;
     color: #fff;
+    box-sizing: border-box; /* important so border doesn’t overflow */
   }
+  
   
   /* The SVG that draws the waveform + grid */
   .wave-svg {
@@ -94,16 +95,27 @@ html, body {
     vertical-align: super;
   }
   
-  /* Flash border effect for the readout container */
-  @keyframes borderFlash {
-    0%   { border-color: red; }
-    50%  { border-color: transparent; }
-    100% { border-color: red; }
+  @keyframes fillFlash {
+    0%, 100% {
+      border-color: red;
+      background-color: rgba(255, 0, 0, 0.4); /* semi-transparent red */
+    }
+    50% {
+      border-color: transparent;
+      background-color: rgba(255, 0, 0, 0);   /* no fill at midpoint */
+    }
   }
+  
+  /* Apply to .readout-container when you want to flash red */
   .border-flash {
-    border: 2px solid red;
-    animation: borderFlash 0.5s ease-in-out;
+    border: 4px solid red;             /* thicker border */
+    animation: fillFlash 1s ease-in-out 2; 
+    /* 
+       ^ 1s duration, "ease-in-out" timing, 2 iterations (flashes twice)
+       Use `infinite` if you want continuous flashing.
+    */
   }
+  
   
   /* Button bar placed inside the bottom of the bezel */
   #monitor-buttons {

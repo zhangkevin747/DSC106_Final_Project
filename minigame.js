@@ -95,6 +95,9 @@ function nextRound() {
   }
 }
 
+/**
+ * Show final score + observations
+ */
 function finalizeScore() {
   const finalScore = userGuesses.filter(Boolean).length;
   d3.select("#minigame").selectAll("svg").remove();
@@ -114,6 +117,13 @@ function finalizeScore() {
   
   d3.select("#minigame").html(`
     <h2>You scored ${finalScore} out of ${maxRounds}!</h2>
+    <div id="minigame-insights">
+      <h3>Visual Observations</h3>
+      <ul>
+        <li><strong>Non-Survivors:</strong> Display sharp declines, big spikes, and erratic fluctuations.</li>
+        <li><strong>Survivors:</strong> Tend to be more stable with smoother transitions.</li>
+      </ul>
+    </div>
     <button id="go-to-monitor-btn" class="fancy-button" style="margin-top: 15px;">
       Click here to go to the monitor
     </button>
@@ -123,17 +133,51 @@ function finalizeScore() {
     .addEventListener("click", goToMonitorPage);
 }
 
+/**
+ * More playful feedback with icons, color, and a bounce animation
+ */
 function showFeedback(message) {
   const popup = d3.select("#minigame-popup");
-  popup.html(message)
-       .style("display", "block")
+  
+  // Remove old classes
+  popup.classed("feedback-correct", false)
+       .classed("feedback-wrong", false)
+       .classed("popup-animate", false);
+
+  // Decide styling based on "Wrong!" or "Correct!"
+  if (message.toLowerCase().includes("wrong")) {
+    popup.classed("feedback-wrong", true);
+    // Add a fun icon, e.g., ❌
+    popup.html(`<span style="font-size:1.5em;">❌</span> ${message}`);
+  } else if (message.toLowerCase().includes("correct")) {
+    popup.classed("feedback-correct", true);
+    // Add a fun icon, e.g., ✅
+    popup.html(`<span style="font-size:1.5em;">✅</span> ${message}`);
+  } else {
+    // Fallback: if it's some other message
+    popup.html(message);
+  }
+
+  // Add the bounce animation class
+  popup.classed("popup-animate", true);
+
+  // Show the popup with a fade-in
+  popup.style("display", "block")
        .transition().duration(300)
        .style("opacity", 1);
+
+  // Hide the popup after 1.5 seconds
   setTimeout(() => {
     popup.transition().duration(300)
          .style("opacity", 0)
-         .on("end", () => popup.style("display", "none"));
-  }, 1000);
+         .on("end", () => {
+           popup.style("display", "none");
+           // Reset classes so next time the bounce replays
+           popup.classed("feedback-correct", false)
+                .classed("feedback-wrong", false)
+                .classed("popup-animate", false);
+         });
+  }, 1500);
 }
 
 function updateBorderEffect() {

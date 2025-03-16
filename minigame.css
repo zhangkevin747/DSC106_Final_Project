@@ -12,10 +12,10 @@ html, body {
     color: #fff;                /* Default text white */
     line-height: 1.4;
     overflow: hidden;
-  }
+}
   
-  /* ECG Grid Background */
-  #wave-background {
+/* ECG Grid Background */
+#wave-background {
     position: fixed;
     top: 0;
     left: 0;
@@ -28,50 +28,50 @@ html, body {
       linear-gradient(#222 1px, transparent 1px),
       linear-gradient(90deg, #222 1px, transparent 1px);
     background-size: 20px 20px;
-  }
-  #wave-svg {
+}
+#wave-svg {
     width: 100%;
     height: 100%;
     display: block;
     overflow: visible;
-  }
-  #wave-path {
+}
+#wave-path {
     stroke: #e74c3c; /* Red ECG wave */
     stroke-width: 3;
     fill: none;
     stroke-dasharray: 2000;
     stroke-dashoffset: 2000;
-  }
+}
   
-  /* BPM and Heart Display */
-  #bpm-container {
+/* BPM and Heart Display */
+#bpm-container {
     position: fixed;
     top: 20px;
     right: 20px;
     text-align: center;
     z-index: 9999;
-  }
-  #heart-rate {
+}
+#heart-rate {
     font-size: 2rem;
     margin-bottom: 5px;
-  }
-  #heart-icon {
+}
+#heart-icon {
     font-size: 2rem;
     color: #e74c3c;
-  }
+}
   
-  /* Heart Pulse Animation */
-  @keyframes heartPulse {
+/* Heart Pulse Animation */
+@keyframes heartPulse {
     0% { transform: scale(1); }
     50% { transform: scale(1.3); }
     100% { transform: scale(1); }
-  }
-  .heart-beat {
+}
+.heart-beat {
     animation: heartPulse 0.3s ease-in-out;
-  }
+}
   
-  /* MINIGAME PAGE CONTAINER */
-  #minigame-page {
+/* MINIGAME PAGE CONTAINER */
+#minigame-page {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -87,10 +87,10 @@ html, body {
     overflow: hidden;
     position: relative;
     z-index: 10;
-  }
+}
   
-  /* Minigame Chart Container */
-  #minigame-container {
+/* Minigame Chart Container */
+#minigame-container {
     margin: 20px auto;
     width: 100%;
     max-width: 600px;
@@ -102,48 +102,72 @@ html, body {
     color: #333;
     position: relative;
     z-index: 10;
-  }
+}
   
-  /* Minigame SVG Container */
-  #minigame {
+/* Minigame SVG Container */
+#minigame {
     margin: 0 auto;
     position: relative;
-  }
+}
   
-  /* Popup Feedback */
-  #minigame-popup {
+/* Popup Feedback – more playful styling */
+#minigame-popup {
     position: absolute;
-    background: #fff;
-    border: 2px solid #333;
+    /* Default (neutral) styling; we override via classes below */
+    background: #444;
+    color: #fff;
+    border: 2px solid #666;
     border-radius: 8px;
-    padding: 8px 12px;
-    font-size: 0.95rem;
-    color: #333;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    padding: 12px 16px;
+    font-size: 1.1rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
     pointer-events: none;
     opacity: 0;
     display: none;
     transition: opacity 0.3s ease;
     z-index: 10;
-  }
-  
-  /* Border effects for wrong answers */
-  #minigame-page.wrong1 {
+}
+
+/* Correct / Wrong color themes */
+.feedback-correct {
+    background: #2ecc71; /* Green */
+    border-color: #27ae60;
+    color: #fff;
+}
+.feedback-wrong {
+    background: #e74c3c; /* Red */
+    border-color: #c0392b;
+    color: #fff;
+}
+
+/* Bounce animation for the popup */
+@keyframes popupBounce {
+    0%   { transform: scale(0.8); opacity: 0; }
+    50%  { transform: scale(1.05); opacity: 1; }
+    70%  { transform: scale(0.95); }
+    100% { transform: scale(1); }
+}
+.popup-animate {
+    animation: popupBounce 0.5s ease-in-out;
+}
+
+/* Border effects for wrong answers */
+#minigame-page.wrong1 {
     border: 4px solid #e74c3c;
-  }
-  #minigame-page.wrong2 {
+}
+#minigame-page.wrong2 {
     border: 8px solid #e74c3c;
     animation: pulse 1s infinite;
-  }
-  @keyframes pulse {
+}
+@keyframes pulse {
     0% { box-shadow: 0 0 5px #e74c3c; }
     50% { box-shadow: 0 0 20px #e74c3c; }
     100% { box-shadow: 0 0 5px #e74c3c; }
-  }
+}
   
-  /* Updated Fancy Button */
+/* Updated Fancy Button */
 .fancy-button {
-    background: linear-gradient(135deg, #000000, #000000);  /* Bold red gradient */
+    background: linear-gradient(135deg, #000000, #000000);
     border: 2px solid #000000;
     border-radius: 8px;
     padding: 12px 30px;
@@ -156,9 +180,15 @@ html, body {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-
 .fancy-button:hover {
     transform: translateY(-3px);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
 }
-  
+
+/* Adjust heading and paragraph spacing inside the #minigame-page */
+#minigame-page h1 {
+    margin: 0 0 5px 0;
+}
+#minigame-page p {
+    margin: 0 0 10px 0;
+}

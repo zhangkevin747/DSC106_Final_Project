@@ -213,5 +213,43 @@ document.addEventListener("DOMContentLoaded", function() {
         .style("margin-top", "20px")
         .text("Failed to load vital_signs_data.json");
     });
+        // --- Easter Egg for the power button with shutdown and boot up animations ---
+d3.select(".tv-button.power-button").on("click", function() {
+    // Fade out the vital signs display (simulate shutdown)
+    d3.select("#monitor-container")
+      .transition()
+      .duration(1000)
+      .style("opacity", 0)
+      .on("end", function() {
+        // Show humorous shutdown message
+        d3.select("#monitor-container")
+          .html("<div id='shutdown-message' style='text-align: center; color: #fff; font-size: 2em; padding-top: 20%;'>I'm not powering off... I'm just taking a power nap!</div>")
+          .style("background", "#000")
+          .style("opacity", 1);
+        
+        // Wait 3 seconds before transitioning to the boot up screen
+        setTimeout(function() {
+          // Fade out the shutdown message
+          d3.select("#monitor-container")
+            .transition()
+            .duration(500)
+            .style("opacity", 0)
+            .on("end", function() {
+              // Replace content with boot up screen
+              d3.select("#monitor-container")
+                .html("<div id='bootup-screen' style='text-align: center; color: #0f0; font-size: 1.5em; padding-top: 20%;'>Booting up...<br/><span style='font-size: 1em;'>Loading system diagnostics...</span></div>")
+                .style("opacity", 0)
+                .transition()
+                .duration(1000)
+                .style("opacity", 1);
+              
+              // After a short delay, reload the page to simulate powering back on
+              setTimeout(function() {
+                location.reload();
+              }, 2000);
+            });
+        }, 3000);
+      });
   });
+});
   

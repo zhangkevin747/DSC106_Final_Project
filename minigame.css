@@ -5,11 +5,11 @@ html, body {
     width: 100%;
     height: 100vh;
     display: flex;
-    align-items: center;        /* Vertical centering */
-    justify-content: center;    /* Horizontal centering */
-    background: #000;           /* Black background */
+    align-items: center;        
+    justify-content: center;    
+    background: #000;           
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: #fff;                /* Default text white */
+    color: #fff;                
     line-height: 1.4;
     overflow: hidden;
 }
@@ -22,7 +22,7 @@ html, body {
     width: 100%;
     height: 100%;
     pointer-events: none;
-    z-index: 0; /* Behind everything */
+    z-index: 0; 
     background-color: #000;
     background-image:
       linear-gradient(#222 1px, transparent 1px),
@@ -36,7 +36,7 @@ html, body {
     overflow: visible;
 }
 #wave-path {
-    stroke: #e74c3c; /* Red ECG wave */
+    stroke: #e74c3c; 
     stroke-width: 3;
     fill: none;
     stroke-dasharray: 2000;
@@ -75,7 +75,7 @@ html, body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: #333; /* Dark grey container */
+    background: #333; 
     color: #fff;
     padding: 20px;
     margin: 10px auto;
@@ -113,7 +113,6 @@ html, body {
 /* Popup Feedback – more playful styling */
 #minigame-popup {
     position: absolute;
-    /* Default (neutral) styling; we override via classes below */
     background: #444;
     color: #fff;
     border: 2px solid #666;
@@ -191,4 +190,23 @@ html, body {
 }
 #minigame-page p {
     margin: 0 0 10px 0;
+}
+
+/* --- Confetti / Emoji Float Animation --- */
+@keyframes floatUp {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100px) scale(0.5);
+    opacity: 0;
+  }
+}
+.confetti-emoji {
+  position: absolute;
+  animation: floatUp 1.5s ease-out forwards;
+  pointer-events: none;
+  font-size: 1.5rem;
+  z-index: 999999; /* ensure on top of everything */
 }

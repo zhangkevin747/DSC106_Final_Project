@@ -13,6 +13,7 @@ svgWave.select("#dynamic-beat").remove();
 
 const baseline = 300;
 
+/** Animate the heartbeat line continuously **/
 function beat() {
   if (isDead) return; // Stop heartbeat if player is "dead"
 
@@ -78,14 +79,14 @@ let currentRound = 0;
 let userGuesses = [];
 const maxRounds = parameters.length;
 let wrongCount = 0;
+let cachedData = null; // to store JSON
 
-// Global variable to cache the JSON data.
-let cachedData = null;
-
+/** On "Power" button in final screen, go to monitor */
 function goToMonitorPage() {
   window.location.href = "monitor.html";
 }
 
+/** Move to next round or finalize score */
 function nextRound() {
   currentRound++;
   if (currentRound < maxRounds) {
@@ -96,18 +97,39 @@ function nextRound() {
 }
 
 /**
- * Show final score + observations
+ * Display final results + short observations
+ * with custom heart icons based on the final score.
  */
 function finalizeScore() {
   const finalScore = userGuesses.filter(Boolean).length;
   d3.select("#minigame").selectAll("svg").remove();
-  
-  if (finalScore === 0) {
+
+  // Change the top-right heart icon based on final score
+  // 3 -> ✅
+  // 2 -> ❤️
+  // 1 -> 💔
+  // 0 -> 💀 (and flatline)
+  if (finalScore === 3) {
+    heartIconElement.innerHTML = "✅";
+    heartIconElement.classList.remove("heart-beat");
+    heartRateElement.textContent = "Perfect Score!";
+  } else if (finalScore === 2) {
+    heartIconElement.innerHTML = "❤️";
+    heartIconElement.classList.remove("heart-beat");
+    // Keep BPM text as-is
+  } else if (finalScore === 1) {
+    heartIconElement.innerHTML = "💔";
+    heartIconElement.classList.remove("heart-beat");
+    // Keep BPM text as-is
+  } else {
+    // finalScore === 0
     isDead = true;
     heartRateElement.textContent = "0 BPM";
     heartIconElement.innerHTML = "💀";
     heartIconElement.classList.remove("heart-beat");
+    // Stop the dynamic beat line
     svgWave.select("#dynamic-beat").remove();
+    // Draw a flat line
     svgWave.append("path")
       .attr("d", "M 0,300 L 1200,300")
       .attr("stroke", "#e74c3c")
@@ -115,6 +137,7 @@ function finalizeScore() {
       .attr("fill", "none");
   }
   
+  // Update the minigame container with the final message
   d3.select("#minigame").html(`
     <h2>You scored ${finalScore} out of ${maxRounds}!</h2>
     <div id="minigame-insights">
@@ -128,14 +151,16 @@ function finalizeScore() {
       Click here to go to the monitor
     </button>
   `);
-  
+
   document.getElementById("go-to-monitor-btn")
     .addEventListener("click", goToMonitorPage);
 }
 
-/**
- * More playful feedback with icons, color, and a bounce animation
- */
+/***************************************************************
+ * 3) FUN FEEDBACK – bounce popup + floating emojis (stars/skulls)
+ ***************************************************************/
+
+/** Show the feedback popup with color + bounce + icon */
 function showFeedback(message) {
   const popup = d3.select("#minigame-popup");
   
@@ -147,14 +172,15 @@ function showFeedback(message) {
   // Decide styling based on "Wrong!" or "Correct!"
   if (message.toLowerCase().includes("wrong")) {
     popup.classed("feedback-wrong", true);
-    // Add a fun icon, e.g., ❌
     popup.html(`<span style="font-size:1.5em;">❌</span> ${message}`);
+    // Spawn some skull emojis
+    spawnEmojis(10, "skull");
   } else if (message.toLowerCase().includes("correct")) {
     popup.classed("feedback-correct", true);
-    // Add a fun icon, e.g., ✅
     popup.html(`<span style="font-size:1.5em;">✅</span> ${message}`);
+    // Spawn some star emojis
+    spawnEmojis(10, "star");
   } else {
-    // Fallback: if it's some other message
     popup.html(message);
   }
 
@@ -180,6 +206,44 @@ function showFeedback(message) {
   }, 1500);
 }
 
+/** Spawn fun floating emojis (stars for correct, skulls for wrong) */
+function spawnEmojis(count, type = "star") {
+  const container = document.body; // place them over the entire screen
+  let emojis = [];
+
+  if (type === "star") {
+    emojis = ["✨", "🌟", "💫", "⭐"];
+  } else if (type === "skull") {
+    emojis = ["💀", "☠️", "😵"];
+  } else {
+    emojis = ["🎉"];
+  }
+
+  for (let i = 0; i < count; i++) {
+    const emoji = document.createElement("div");
+    emoji.classList.add("confetti-emoji");
+    // pick a random emoji
+    const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+    emoji.textContent = randomEmoji;
+
+    // random position near the center of the screen
+    const x = window.innerWidth * 0.4 + (Math.random() * window.innerWidth * 0.2);
+    const y = window.innerHeight * 0.4 + (Math.random() * window.innerHeight * 0.2);
+    emoji.style.left = x + "px";
+    emoji.style.top = y + "px";
+
+    container.appendChild(emoji);
+
+    // remove after the floatUp animation
+    setTimeout(() => {
+      emoji.remove();
+    }, 2000);
+  }
+}
+
+/***************************************************************
+ * 4) ROUND DRAWING + DATA LOADING
+ ***************************************************************/
 function updateBorderEffect() {
   const container = document.getElementById("minigame-page");
   if (wrongCount === 1) {
@@ -191,7 +255,7 @@ function updateBorderEffect() {
   }
 }
 
-// Draw the round without transition (used by the fade function).
+/** Draw the round (2 lines: Survived vs. Death) */
 function drawMiniGameRound(roundIndex) {
   d3.select("#minigame").selectAll("svg").remove();
   d3.select("#minigame-popup").style("display", "none");
@@ -226,7 +290,7 @@ function drawMiniGameRound(roundIndex) {
     { points: filteredSurvivedData, label: "survived" }
   ];
 
-  // Randomly shuffle the lines.
+  // Randomly shuffle the lines so user can guess
   for (let i = linesData.length - 1; i > 0; i--) {
     const randIndex = Math.floor(Math.random() * (i + 1));
     [linesData[i], linesData[randIndex]] = [linesData[randIndex], linesData[i]];
@@ -258,6 +322,7 @@ function drawMiniGameRound(roundIndex) {
     .y(d => y(d.value))
     .curve(d3.curveMonotoneX);
 
+  // Draw both lines
   linesData.forEach(lineObj => {
     svgMini.append("path")
       .datum(lineObj.points)
@@ -272,7 +337,7 @@ function drawMiniGameRound(roundIndex) {
         d3.select(this).transition().duration(150).style("stroke", "#888");
       })
       .on("click", () => {
-        // One attempt per round.
+        // One attempt per round
         if (lineObj.label === "survived") {
           userGuesses[roundIndex] = true;
           showFeedback("Correct!");
@@ -292,7 +357,7 @@ function drawMiniGameRound(roundIndex) {
   });
 }
 
-// Fade out the minigame area, draw the new round, then fade it back in.
+/** Fade out + fade in to next round */
 function fadeOutInRound(roundIndex) {
   d3.select("#minigame")
     .transition().duration(200)
@@ -305,19 +370,19 @@ function fadeOutInRound(roundIndex) {
     });
 }
 
-// Initialize the minigame by loading the data once, then starting the game.
+/** Load data + start the minigame */
 function initMiniGame() {
   currentRound = 0;
   userGuesses = [];
   wrongCount = 0;
   isDead = false;
   currentBpmRange = [60, 80];
-  // Hide the minigame container until data is loaded.
-  d3.select("#minigame-page").style("opacity", 0);
   
+  d3.select("#minigame-page").style("opacity", 0);
+
   d3.json("vital_signs_data.json").then(function(data) {
     cachedData = data;
-    // Fade in the minigame container when ready.
+    // Fade in the minigame container
     d3.select("#minigame-page").transition().duration(500).style("opacity", 1);
     drawMiniGameRound(currentRound);
   }).catch(function(error) {

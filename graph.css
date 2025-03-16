@@ -15,6 +15,7 @@ body {
     margin: 0 auto;
     padding: 0;
     background: #000; /* Ensure the container is also black */
+    width: 100%;       /* Fill the page width */
 }
 
 #graphs-page h1 {
@@ -30,46 +31,24 @@ body {
     font-style: italic;
 }
 
-#controls {
-    width: 100%;
-    margin: 10px 0;
-    padding: 10px;
-    background-color: #111; /* Dark background for controls */
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(255,255,255,0.1);
-    color: #fff; /* White text in controls */
-}
-
-#controls label {
-    margin-right: 10px;
-    font-weight: bold;
-}
-
-select {
-    padding: 8px 12px;
-    border-radius: 4px;
-    border: 1px solid #555; /* Darker border */
-    background-color: #222; /* Dark background for dropdown */
-    color: #fff; /* White text in dropdown */
-    font-size: 14px;
-    min-width: 200px;
-}
+/* The controls section is removed via JS. */
 
 #main-container {
     display: flex;
     flex-direction: row;
-    flex-wrap: wrap;
     width: 100%;
     background: #000; /* Keep main container black */
+    align-items: flex-start; /* So the top edges align */
 }
 
+/* 75% of the width for the chart container */
 #chart-container {
-    flex: 1 1 auto;
-    min-width: 600px;
-    max-width: 1200px;
-    margin-right: 20px;
+    flex: 0 0 75%;
+    max-width: 75%;
+    margin-right: 0;
 }
 
+/* The chart inside the container can still have margins or padding as needed */
 #chart {
     position: relative;
     margin: 10px 0;
@@ -79,16 +58,18 @@ select {
     background: #000; /* Black chart area */
 }
 
+/* 25% of the width for the insights panel */
 #insights-panel {
+    flex: 0 0 25%;
+    max-width: 25%;
     display: none;
     opacity: 0;
     transition: opacity 1s ease-in-out;
-    flex: 0 0 180px;
     border-left: 2px solid #444; /* Darker border line */
-    padding-left: 20px;
-    margin-top: 20px;
-    background: #000; /* Keep insights panel black */
-    color: #fff; /* White text in insights */
+    padding-left: 10px;  /* Slight horizontal padding */
+    margin-top: 10px;
+    background: #000;    /* Keep insights panel black */
+    color: #fff;         /* White text in insights */
 }
 
 #insights-panel h2 {
@@ -104,6 +85,7 @@ select {
     color: #fff;
 }
 
+/* Tooltip styles */
 .tooltip {
     position: absolute;
     text-align: left;
@@ -151,8 +133,9 @@ select {
     color: #ccc; /* Lighter text for loading message */
 }
 
+/* Responsive styles for smaller screens */
 @media (max-width: 768px) {
-    #graphs-page, #controls {
+    #graphs-page {
         width: 95%;
         margin: 10px auto;
         padding: 15px;
@@ -163,11 +146,55 @@ select {
     #chart-container {
         margin-right: 0;
         max-width: 100% !important;
+        flex: 0 0 auto;
     }
     #insights-panel {
         border-left: none;
         border-top: 2px solid #444;
         margin-top: 20px;
         padding-top: 20px;
-    }
+        flex: none;
+        max-width: 100%;
+    }   
 }
+
+/* insights panel: display as a column, so the text is at the top,
+   and the GIF can fill the rest of the vertical space */
+   #insights-panel {
+    flex: 0 0 25%;             /* 25% width for the panel */
+    max-width: 25%;
+    display: flex;            /* turn on flexbox */
+    flex-direction: column;   /* stack items vertically */
+    background: #000;
+    color: #fff;
+    border-left: 2px solid #444;
+    /* remove these if you want the panel from top to bottom:
+    margin-top: 10px; 
+    padding-left: 10px; 
+    */
+}
+
+/* The top text container remains its natural size */
+#takeaways-content {
+    flex: 0 0 auto;
+    margin: 10px;
+}
+
+/* The GIF container grows to fill leftover vertical space */
+#bottom-right-gif {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;      /* center the image vertically */
+    justify-content: center;  /* center horizontally if smaller than container */
+    margin: 10px;            /* optional padding around the GIF */
+}
+
+/* Make the GIF fill the container’s width, auto height */
+#bottom-right-gif img {
+    width: 100%;
+    height: auto;
+    object-fit: cover; /* if the image is smaller or bigger, cover might help fill */
+    display: block;
+}
+
+

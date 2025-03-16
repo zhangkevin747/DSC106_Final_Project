@@ -79,6 +79,9 @@ let userGuesses = [];
 const maxRounds = parameters.length;
 let wrongCount = 0;
 
+// Global variable to cache the JSON data.
+let cachedData = null;
+
 function goToMonitorPage() {
   window.location.href = "monitor.html";
 }
@@ -86,7 +89,7 @@ function goToMonitorPage() {
 function nextRound() {
   currentRound++;
   if (currentRound < maxRounds) {
-    drawMiniGameRound(currentRound);
+    fadeOutInRound(currentRound);
   } else {
     finalizeScore();
   }
@@ -144,114 +147,139 @@ function updateBorderEffect() {
   }
 }
 
+// Draw the round without transition (used by the fade function).
 function drawMiniGameRound(roundIndex) {
   d3.select("#minigame").selectAll("svg").remove();
   d3.select("#minigame-popup").style("display", "none");
 
   const param = parameters[roundIndex];
 
-  d3.json("vital_signs_data.json").then(function(rawData) {
-    const deathData = rawData["Death"].flat().map(d => ({
-      time: new Date(d.Time),
-      value: +d[param]
-    })).filter(d => !isNaN(d.value));
-    const survivedData = rawData["Survived"].flat().map(d => ({
-      time: new Date(d.Time),
-      value: +d[param]
-    })).filter(d => !isNaN(d.value));
+  if (!cachedData) {
+    d3.select("#minigame").html("Loading data...");
+    return;
+  }
 
-    const cutoffDate = new Date('1969-12-31T22:00:00');
-    const filteredDeathData = deathData.filter(d => d.time < cutoffDate && d.time.getFullYear() === 1969);
-    const filteredSurvivedData = survivedData.filter(d => d.time < cutoffDate && d.time.getFullYear() === 1969);
+  const deathData = cachedData["Death"].flat().map(d => ({
+    time: new Date(d.Time),
+    value: +d[param]
+  })).filter(d => !isNaN(d.value));
+  const survivedData = cachedData["Survived"].flat().map(d => ({
+    time: new Date(d.Time),
+    value: +d[param]
+  })).filter(d => !isNaN(d.value));
 
-    if (filteredDeathData.length === 0 || filteredSurvivedData.length === 0) {
-      d3.select("#minigame").html("No mini game data available for this parameter.");
-      return;
-    }
+  const cutoffDate = new Date('1969-12-31T22:00:00');
+  const filteredDeathData = deathData.filter(d => d.time < cutoffDate && d.time.getFullYear() === 1969);
+  const filteredSurvivedData = survivedData.filter(d => d.time < cutoffDate && d.time.getFullYear() === 1969);
 
-    let linesData = [
-      { points: filteredDeathData, label: "death" },
-      { points: filteredSurvivedData, label: "survived" }
-    ];
+  if (filteredDeathData.length === 0 || filteredSurvivedData.length === 0) {
+    d3.select("#minigame").html("No mini game data available for this parameter.");
+    return;
+  }
 
-    // Randomly shuffle the lines
-    for (let i = linesData.length - 1; i > 0; i--) {
-      const randIndex = Math.floor(Math.random() * (i + 1));
-      [linesData[i], linesData[randIndex]] = [linesData[randIndex], linesData[i]];
-    }
+  let linesData = [
+    { points: filteredDeathData, label: "death" },
+    { points: filteredSurvivedData, label: "survived" }
+  ];
 
-    const allPoints = filteredDeathData.concat(filteredSurvivedData);
-    const width = 600, height = 400;
-    const margin = { top: 20, right: 20, bottom: 80, left: 40 };
+  // Randomly shuffle the lines.
+  for (let i = linesData.length - 1; i > 0; i--) {
+    const randIndex = Math.floor(Math.random() * (i + 1));
+    [linesData[i], linesData[randIndex]] = [linesData[randIndex], linesData[i]];
+  }
 
-    const x = d3.scaleTime()
-      .domain(d3.extent(allPoints, d => d.time))
-      .range([margin.left, width - margin.right]);
+  const allPoints = filteredDeathData.concat(filteredSurvivedData);
+  const width = 600, height = 400;
+  const margin = { top: 20, right: 20, bottom: 80, left: 40 };
 
-    const y = d3.scaleLinear()
-      .domain([
-        d3.min(allPoints, d => d.value) * 0.95,
-        d3.max(allPoints, d => d.value) * 1.05
-      ])
-      .nice()
-      .range([height - margin.bottom, margin.top]);
+  const x = d3.scaleTime()
+    .domain(d3.extent(allPoints, d => d.time))
+    .range([margin.left, width - margin.right]);
 
-    const svgMini = d3.select("#minigame")
-      .append("svg")
-      .attr("width", width)
-      .attr("height", height);
+  const y = d3.scaleLinear()
+    .domain([
+      d3.min(allPoints, d => d.value) * 0.95,
+      d3.max(allPoints, d => d.value) * 1.05
+    ])
+    .nice()
+    .range([height - margin.bottom, margin.top]);
 
-    const lineGenerator = d3.line()
-      .x(d => x(d.time))
-      .y(d => y(d.value))
-      .curve(d3.curveMonotoneX);
+  const svgMini = d3.select("#minigame")
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height);
 
-    linesData.forEach(lineObj => {
-      svgMini.append("path")
-        .datum(lineObj.points)
-        .attr("d", lineGenerator)
-        .style("stroke", "#888")
-        .style("stroke-width", 3)
-        .style("fill", "none")
-        .on("mouseover", function() {
-          d3.select(this).transition().duration(150).style("stroke", "#e74c3c");
-        })
-        .on("mouseout", function() {
-          d3.select(this).transition().duration(150).style("stroke", "#888");
-        })
-        .on("click", () => {
-          // One attempt per round
-          if (lineObj.label === "survived") {
-            userGuesses[roundIndex] = true;
-            showFeedback("Correct!");
-          } else {
-            userGuesses[roundIndex] = false;
-            wrongCount++;
-            if (wrongCount === 1) {
-              currentBpmRange = [110, 125];
-            } else if (wrongCount === 2) {
-              currentBpmRange = [130, 150];
-            }
-            updateBorderEffect();
-            showFeedback("Wrong!");
+  const lineGenerator = d3.line()
+    .x(d => x(d.time))
+    .y(d => y(d.value))
+    .curve(d3.curveMonotoneX);
+
+  linesData.forEach(lineObj => {
+    svgMini.append("path")
+      .datum(lineObj.points)
+      .attr("d", lineGenerator)
+      .style("stroke", "#888")
+      .style("stroke-width", 3)
+      .style("fill", "none")
+      .on("mouseover", function() {
+        d3.select(this).transition().duration(150).style("stroke", "#e74c3c");
+      })
+      .on("mouseout", function() {
+        d3.select(this).transition().duration(150).style("stroke", "#888");
+      })
+      .on("click", () => {
+        // One attempt per round.
+        if (lineObj.label === "survived") {
+          userGuesses[roundIndex] = true;
+          showFeedback("Correct!");
+        } else {
+          userGuesses[roundIndex] = false;
+          wrongCount++;
+          if (wrongCount === 1) {
+            currentBpmRange = [110, 125];
+          } else if (wrongCount === 2) {
+            currentBpmRange = [130, 150];
           }
-          setTimeout(nextRound, 1000);
-        });
-    });
-  }).catch(function(error) {
-    console.error("Error loading mini game data:", error);
-    d3.select("#minigame").html("Error loading mini game.");
+          updateBorderEffect();
+          showFeedback("Wrong!");
+        }
+        setTimeout(nextRound, 1000);
+      });
   });
 }
 
+// Fade out the minigame area, draw the new round, then fade it back in.
+function fadeOutInRound(roundIndex) {
+  d3.select("#minigame")
+    .transition().duration(200)
+    .style("opacity", 0)
+    .on("end", function() {
+      drawMiniGameRound(roundIndex);
+      d3.select("#minigame")
+        .transition().duration(200)
+        .style("opacity", 1);
+    });
+}
+
+// Initialize the minigame by loading the data once, then starting the game.
 function initMiniGame() {
   currentRound = 0;
   userGuesses = [];
   wrongCount = 0;
   isDead = false;
   currentBpmRange = [60, 80];
-  document.getElementById("minigame-page").classList.remove("wrong1", "wrong2");
-  drawMiniGameRound(currentRound);
+  // Hide the minigame container until data is loaded.
+  d3.select("#minigame-page").style("opacity", 0);
+  
+  d3.json("vital_signs_data.json").then(function(data) {
+    cachedData = data;
+    // Fade in the minigame container when ready.
+    d3.select("#minigame-page").transition().duration(500).style("opacity", 1);
+    drawMiniGameRound(currentRound);
+  }).catch(function(error) {
+    console.error("Error loading mini game data:", error);
+    d3.select("#minigame").html("Error loading mini game.");
+  });
 }
 
 initMiniGame();

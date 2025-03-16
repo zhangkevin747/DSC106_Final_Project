@@ -43,8 +43,8 @@ body {
 
 /* 75% of the width for the chart container */
 #chart-container {
-    flex: 0 0 75%;
-    max-width: 75%;
+    flex: 0 0 70%;
+    max-width: 70%;
     margin-right: 0;
 }
 
@@ -60,8 +60,8 @@ body {
 
 /* 25% of the width for the insights panel */
 #insights-panel {
-    flex: 0 0 25%;
-    max-width: 25%;
+    flex: 0 0 30%;
+    max-width: 30%;
     display: none;
     opacity: 0;
     transition: opacity 1s ease-in-out;
@@ -168,10 +168,8 @@ body {
     background: #000;
     color: #fff;
     border-left: 2px solid #444;
-    /* remove these if you want the panel from top to bottom:
-    margin-top: 10px; 
+    margin-top: 33px; 
     padding-left: 10px; 
-    */
 }
 
 /* The top text container remains its natural size */

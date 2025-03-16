@@ -127,11 +127,11 @@ function drawChart(selectedParameter) {
       const parameterName = selectedParameter.split('/').pop();
       const chartContainer = document.getElementById('chart');
       const containerWidth = chartContainer.clientWidth;
-      const width = Math.min(containerWidth - 20, 1400);
+      const width = containerWidth;
       const height = Math.min(window.innerHeight * 0.8, 700);
 
-      // Adjust margins to ensure the legend fits
-      const margin = { top: 30, right: 130, bottom: 50, left: 60 };
+      // Adjust margins now that we are not using extra space on the right for the legend.
+      const margin = { top: 30, right: 20, bottom: 50, left: 60 };
 
       const dataMin = d3.min(allData, d => d.value);
       const dataMax = d3.max(allData, d => d.value);
@@ -413,37 +413,23 @@ function drawChart(selectedParameter) {
           svg.selectAll(".highlight-point").remove();
         });
 
-      // Legend
-      const legend = svg.append("g")
-        .attr("transform", `translate(${width - margin.right + 10}, ${margin.top})`);
+      // Legend has been removed from the SVG.
+      // Instead, append a legend as an HTML element below the chart.
+      d3.select("#chart").append("div")
+          .attr("id", "chart-legend")
+          .style("text-align", "center")
+          .style("margin-top", "10px")
+          .html(`
+            <span style="display:inline-block; margin-right: 20px;">
+              <span style="background:#e74c3c; width:15px; height:15px; display:inline-block; opacity:0.8; margin-right:5px;"></span>
+              Non-Survivors
+            </span>
+            <span style="display:inline-block;">
+              <span style="background:#2ecc71; width:15px; height:15px; display:inline-block; opacity:0.8; margin-right:5px;"></span>
+              Survivors
+            </span>
+          `);
 
-      legend.append("rect")
-        .attr("x", 0)
-        .attr("y", 0)
-        .attr("width", 15)
-        .attr("height", 15)
-        .style("fill", "#e74c3c")
-        .style("opacity", 0.8);
-      legend.append("text")
-        .attr("x", 20)
-        .attr("y", 12)
-        .text("Non-Survivors")
-        .style("font-size", "12px")
-        .style("fill", "#fff");
-
-      legend.append("rect")
-        .attr("x", 0)
-        .attr("y", 30)
-        .attr("width", 15)
-        .attr("height", 15)
-        .style("fill", "#2ecc71")
-        .style("opacity", 0.8);
-      legend.append("text")
-        .attr("x", 20)
-        .attr("y", 42)
-        .text("Survivors")
-        .style("font-size", "12px")
-        .style("fill", "#fff");
 
       const totalAnimationTime = Math.max(deathDuration, survivedDuration) + 2000;
       setTimeout(() => {

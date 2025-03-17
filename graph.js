@@ -59,56 +59,36 @@ function drawChart(selectedParameter) {
       return;
     }
 
-    // Define insights text for each parameter.
-    const insightsByParameter = {
-      "Solar8000/HR": `
-        <ul>
-          <li>Normal HR: 75–95 bpm.</li>
-          <li>Non-Survivors are unstable with big spikes and are rarely in the normal range.</li>
-          <li>Survivors stay inside the normal range for the whole procedure.</li>
-          <li>There is a clear difference between the two groups indicating that heart rate may be an indicator of survival.</li>
-        </ul>
-      `,
-      "Solar8000/ART_DBP": `
-        <ul>
-          <li>Normal diastolic range: 60–80 mmHg.</li>
-          <li>Non-Survivors are more unstable with big fluctuations.</li>
-          <li>Survivors maintain a higher DBP over time.</li>
-          <li>Both groups are outside the normal range with little difference.</li>
-        </ul>
-      `,
-      "Solar8000/ART_MBP": `
-        <ul>
-          <li>MAP normal range: 70–100 mmHg.</li>
-          <li>Non-Survivors stay inside the normal range with a sharp decline then a rise.</li>
-          <li>Survivors keep MAP in normal range initially then gradually decline.</li>
-          <li>There is a noticeable difference between the groups.</li>
-        </ul>
-      `,
-      "Solar8000/ART_SBP": `
-        <ul>
-          <li>Normal systolic: 90–120 mmHg.</li>
-          <li>Non-Survivors appear unstable with fluctuations.</li>
-          <li>Survivors show a more stable trend with gradual decline.</li>
-        </ul>
-      `,
-      "Solar8000/ETCO2": `
-        <ul>
-          <li>Normal ETCO2: 35–45 mmHg.</li>
-          <li>Both groups are outside the normal range.</li>
-          <li>Non-Survivors’ ETCO2 drops sharply.</li>
-          <li>Survivors remain near normal until late in the timeline.</li>
-        </ul>
-      `,
-      "Solar8000/PLETH_SPO2": `
-        <ul>
-          <li>Normal SpO2: 95–100%.</li>
-          <li>Non-Survivors more unstable with a harder dropoff.</li>
-          <li>Survivors stay in the normal range longer with gradual decline.</li>
-          <li>There is a clear difference between the groups.</li>
-        </ul>
-      `
-    };
+    // Define insights text for each parameter, including measurement info and usage.
+const insightsByParameter = {
+    "Solar8000/HR": `
+      <ul>
+        <li><strong>What it is:</strong> Heart Rate (HR) measures the number of heartbeats per minute, reflecting cardiac function and stress levels.</li>
+        <li><strong>Clinical use:</strong> Monitoring HR helps detect arrhythmias, gauge cardiovascular workload, and track overall hemodynamic status.</li>
+        <li><strong>Normal range:</strong> 75–95 bpm.</li>
+        <li><strong>Non-Survivors:</strong> Display big spikes and are rarely in the normal range, indicating instability.</li>
+        <li><strong>Survivors:</strong> Stay inside the normal range for the entire procedure, suggesting better cardiac stability.</li>
+        <li>Overall, heart rate may be an indicator of survival, given the clear differences observed.</li>
+      </ul>
+    `,
+    "Solar8000/ART_DBP": `
+      <ul>
+        <li><strong>What it is:</strong> Arterial Diastolic Blood Pressure (ART_DBP) measures the lowest arterial pressure when the heart is at rest between beats.</li>
+        <li><strong>Clinical use:</strong> Helps evaluate vascular resistance and overall cardiovascular health.</li>
+        <li><strong>Normal diastolic range:</strong> 60–80 mmHg.</li>
+        <li><strong>Non-Survivors:</strong> Show more instability with large fluctuations.</li>
+        <li><strong>Survivors:</strong> Maintain a higher DBP over time.</li>
+        <li>Both groups can fall outside the normal range, though the difference is small.</li>
+      </ul>
+    `,
+    "Solar8000/ART_MBP": `
+      <ul>
+        <li><strong>What it is:</strong> Mean Arterial Pressure (ART_MBP) is the average arterial pressure throughout one cardiac cycle.</li>
+        <li><strong>Clinical use:</strong> Ensures organs are adequately perfused; critical for assessing circulatory status.</li>
+        <li><strong>Normal range:</strong> 70–100 mmHg.</li>
+        <li><strong>Non-Survivors:</strong> Remain in the normal range initially, but exhibit a sharp decline then rise.</li>
+        <li><strong>Survivors:</strong> Stay in the normal range at first
+  
 
     d3.select("#takeaways-content").html(insightsByParameter[selectedParameter] || "");
     d3.select("#chart").html('<div class="loading">Loading data...</div>');

@@ -146,19 +146,22 @@ function finalizeScore() {
   }
   
   // Update the minigame container with the final message
-  d3.select("#minigame").html(`
+d3.select("#minigame").html(`
     <h2>You scored ${finalScore} out of ${maxRounds}!</h2>
     <div id="minigame-insights">
       <h3>Visual Observations</h3>
-      <ul>
-        <li><strong>Non-Survivors:</strong> Display sharp declines, big spikes, and erratic fluctuations.</li>
-        <li><strong>Survivors:</strong> Tend to be more stable with smoother transitions.</li>
-      </ul>
+      <p>
+        Lines corresponding to non-survivors often exhibit sharp declines, big spikes, 
+        and erratic fluctuations, suggesting significant physiological instability. 
+        By contrast, lines for survivors typically maintain steadier trends and smoother 
+        transitions, indicating more stable conditions throughout the procedure.
+      </p>
     </div>
     <button id="go-to-monitor-btn" class="fancy-button" style="margin-top: 15px;">
       Click here to go to the monitor
     </button>
   `);
+  
 
   document.getElementById("go-to-monitor-btn")
     .addEventListener("click", goToMonitorPage);

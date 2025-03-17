@@ -1,16 +1,63 @@
-// monitor.js
-
 document.addEventListener("DOMContentLoaded", function() {
+    // --- NEW: Check if the popup was already shown ---
+    const popupShown = localStorage.getItem("monitorPopupShown");
+    if (!popupShown) {
+      // Create instructions popup
+      const instructionPopup = document.createElement("div");
+      instructionPopup.id = "instruction-popup";
+      instructionPopup.innerHTML = `
+        <div class="popup-content" style="
+           position: relative;
+           padding: 20px;
+           background-color: rgba(0, 0, 0, 0.85);
+           color: #fff;
+           border: 2px solid #ccc;
+           border-radius: 10px;
+           text-align: center;
+           max-width: 400px;
+           width: 80%;
+           box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        ">
+          <span class="close-button" style="
+              position: absolute;
+              top: 10px;
+              right: 10px;
+              cursor: pointer;
+              font-size: 1.2em;
+              font-weight: bold;
+          ">X</span>
+          <p style="margin: 0;">
+            Click on the buttons at the bottom to explore each graph in detail!
+          </p>
+        </div>
+      `;
+      instructionPopup.style.position = "fixed";
+      instructionPopup.style.top = "50%";
+      instructionPopup.style.left = "50%";
+      instructionPopup.style.transform = "translate(-50%, -50%)";
+      instructionPopup.style.zIndex = "10000";
+      document.body.appendChild(instructionPopup);
+  
+      // Close the popup when the "X" is clicked
+      instructionPopup.querySelector(".close-button").addEventListener("click", function() {
+        instructionPopup.style.display = "none";
+        // --- NEW: Set the flag so it doesn't show again ---
+        localStorage.setItem("monitorPopupShown", "true");
+      });
+    }
+  
+    // ------------------------------------------------------------------
+    // Rest of your existing monitor.js code remains unchanged below:
     const container = d3.select("#monitor-container");
   
     // Define your vital signs with key, label, color, and unit.
     const vitals = [
       { key: "Solar8000/HR",         label: "Heart Rate",    color: "#0f0",    unit: "bpm" },
-      { key: "Solar8000/ART_SBP",      label: "Systolic Blood Pressure",   color: "#f00",    unit: "mmHg" },
-      { key: "Solar8000/ART_MBP",      label: "Mean Blood Pressure",   color: "#ffa500", unit: "mmHg" },
-      { key: "Solar8000/ART_DBP",      label: "Diastolic Blood Pressure",   color: "#ff0",    unit: "mmHg" },
-      { key: "Solar8000/ETCO2",        label: "End-Tidal Carbon Dioxide", color: "#0ff",    unit: "mmHg" },
-      { key: "Solar8000/PLETH_SPO2",   label: "Oxygen Saturation",  color: "#f0f",    unit: "%" }
+      { key: "Solar8000/ART_SBP",    label: "Systolic Blood Pressure", color: "#f00",    unit: "mmHg" },
+      { key: "Solar8000/ART_MBP",    label: "Mean Blood Pressure",     color: "#ffa500", unit: "mmHg" },
+      { key: "Solar8000/ART_DBP",    label: "Diastolic Blood Pressure",color: "#ff0",    unit: "mmHg" },
+      { key: "Solar8000/ETCO2",      label: "End-Tidal Carbon Dioxide",color: "#0ff",    unit: "mmHg" },
+      { key: "Solar8000/PLETH_SPO2", label: "Oxygen Saturation",       color: "#f0f",    unit: "%" }
     ];
   
     // Scrolling speed in pixels per second
@@ -27,7 +74,7 @@ document.addEventListener("DOMContentLoaded", function() {
       const rawDeath = data["Death"].flat();
   
       vitals.forEach((v, rowIndex) => {
-        // Create the row container and assign an ID for later selection.
+        // Create the row container
         const row = container.append("div")
           .attr("class", "vital-row")
           .attr("id", v.key + "-row");
@@ -91,7 +138,7 @@ document.addEventListener("DOMContentLoaded", function() {
           arr.sort((a, b) => a.time - b.time);
           if (!arr.length) return;
   
-          // Bridge: add an extra point so the line smoothly connects from the last to the first value.
+          // Bridge: add an extra point so the line smoothly connects from the last to the first value
           const firstVal = arr[0].value;
           const lastTime = arr[arr.length - 1].time.getTime();
           const bridgingTime = new Date(lastTime + bridgeMs);
@@ -163,7 +210,7 @@ document.addEventListener("DOMContentLoaded", function() {
               currentVal = d0.value + ratio * (d1.value - d0.value);
             }
   
-            // Check for an instantaneous change compared to the previous tick
+            // Check for an instantaneous change vs the previous tick
             if (lastValue !== undefined) {
               const relChange = Math.abs(currentVal - lastValue) / Math.abs(lastValue);
               if (relChange >= flashThreshold) {
@@ -178,7 +225,7 @@ document.addEventListener("DOMContentLoaded", function() {
             // Update the numeric readout with the instantaneous value (rounded)
             valueEl.html("<span class='readout-number'>" + currentVal.toFixed(0) + "</span> <span class='readout-unit'>" + v.unit + "</span>");
           });
-        }, 50);
+        });
       });
   
       // --- Map button labels to the correct vital key ---
@@ -213,71 +260,58 @@ document.addEventListener("DOMContentLoaded", function() {
         .style("margin-top", "20px")
         .text("Failed to load vital_signs_data.json");
     });
-    
-        // --- Easter Egg for the power button with shutdown and boot up animations ---
-// --- Easter Egg for the power button with shutdown and boot up animations ---
-d3.select(".tv-button.power-button").on("click", function() {
-  // Fade out both the vital signs display and the monitor tab (simulate shutdown)
-  d3.selectAll("#monitor-container, #monitor-tab")
-    .transition()
-    .duration(1000)
-    .style("opacity", 0)
-    .on("end", function() {
-      // Ensure this is applied only once
-      if (d3.select(this).attr("data-state") !== "shutdown") {
-        d3.select(this).attr("data-state", "shutdown");
-        
-        // Change background and add shutdown message inside the existing elements
-        d3.select(this)
-          .style("background", "#000")
-          .html("<div id='shutdown-message' style='text-align: center; color: #fff; font-size: 2em; font-family: \"LabelFont\"; padding-top: 20%;'>I'm not powering off... I'm just taking a power nap!</div>")
-          .style("opacity", 1);
-      }
-    });
-
-  // Wait 3 seconds before transitioning to the boot-up screen
-  setTimeout(function() {
-    d3.selectAll("#monitor-container, #monitor-tab")
-      .transition()
-      .duration(500)
-      .style("opacity", 0)
-      .on("end", function() {
-        // Replace content with boot-up screen but retain structural elements
-        d3.select(this)
-          .style("background", "#000")  // Ensure background remains consistent
-          .html("<div id='bootup-screen' style='text-align: center; color: #0f0; font-size: 1.5em; font-family: \"LabelFont\"; padding-top: 20%;'>Booting up...<br/><span style='font-size: 1em;'>Loading system diagnostics...</span></div>")
-          .style("opacity", 0)
+      
+    // --- Easter Egg for the power button with shutdown and boot up animations ---
+    d3.select(".tv-button.power-button").on("click", function() {
+      // Fade out both the vital signs display and the monitor tab (simulate shutdown)
+      d3.selectAll("#monitor-container, #monitor-tab")
+        .transition()
+        .duration(1000)
+        .style("opacity", 0)
+        .on("end", function() {
+          if (d3.select(this).attr("data-state") !== "shutdown") {
+            d3.select(this).attr("data-state", "shutdown");
+            d3.select(this)
+              .style("background", "#000")
+              .html("<div id='shutdown-message' style='text-align: center; color: #fff; font-size: 2em; font-family: \"LabelFont\"; padding-top: 20%;'>I'm not powering off... I'm just taking a power nap!</div>")
+              .style("opacity", 1);
+          }
+        });
+  
+      setTimeout(function() {
+        d3.selectAll("#monitor-container, #monitor-tab")
           .transition()
-          .duration(1000)
-          .style("opacity", 1);
-      });
-
-    // After a short delay, reload the page to simulate powering back on
-    setTimeout(function() {
-      location.reload();
-    }, 2000);
-  }, 3000);
-});
-
-// Display current date and time in YYYY-MM-DD HH:MM:SS format
-function updateDateTime() {
-  const now = new Date();
-
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-  const hours = String(now.getHours()).padStart(2, "0");
-  const minutes = String(now.getMinutes()).padStart(2, "0");
-  const seconds = String(now.getSeconds()).padStart(2, "0");
-
-  const formatted = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-  document.getElementById("date-display").textContent = formatted;
-}
-
-// Update time every second
-updateDateTime(); // initial call
-setInterval(updateDateTime, 1000);
-
-
-});
-
+          .duration(500)
+          .style("opacity", 0)
+          .on("end", function() {
+            d3.select(this)
+              .style("background", "#000")
+              .html("<div id='bootup-screen' style='text-align: center; color: #0f0; font-size: 1.5em; font-family: \"LabelFont\"; padding-top: 20%;'>Booting up...<br/><span style='font-size: 1em;'>Loading system diagnostics...</span></div>")
+              .style("opacity", 0)
+              .transition()
+              .duration(1000)
+              .style("opacity", 1);
+          });
+        setTimeout(function() {
+          location.reload();
+        }, 2000);
+      }, 3000);
+    });
+  
+    // Display current date and time in YYYY-MM-DD HH:MM:SS format
+    function updateDateTime() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, "0");
+      const day = String(now.getDate()).padStart(2, "0");
+      const hours = String(now.getHours()).padStart(2, "0");
+      const minutes = String(now.getMinutes()).padStart(2, "0");
+      const seconds = String(now.getSeconds()).padStart(2, "0");
+      const formatted = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+      document.getElementById("date-display").textContent = formatted;
+    }
+  
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+  });
+  

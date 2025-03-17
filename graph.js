@@ -59,9 +59,9 @@ function drawChart(selectedParameter) {
       return;
     }
 
-    // Define insights text for each parameter with additional context.
+    // Define insights text for each parameter.
     const insightsByParameter = {
-        "Solar8000/HR": `
+      "Solar8000/HR": `
         <ul>
             <li><strong>What it measures:</strong> Heart Rate (HR) is the number of heartbeats per minute, indicating how quickly the heart is beating.</li>
             <li><strong>What it's used for:</strong> A key indicator of cardiac function and stress response; helps detect arrhythmias or abnormal rhythms.</li>
@@ -70,63 +70,57 @@ function drawChart(selectedParameter) {
             <li>Survivors stay inside the normal range for the whole procedure.</li>
             <li>There is a clear difference between the two groups indicating that heart rate may be an indicator of survival.</li>
         </ul>
-        `,
-    
-        "Solar8000/ART_DBP": `
+      `,
+      "Solar8000/ART_DBP": `
         <ul>
-            <li><strong>What it measures:</strong> Diastolic Blood Pressure (DBP) is the arterial pressure when the heart rests between beats.</li>
+          <li><strong>What it measures:</strong> Diastolic Blood Pressure (DBP) is the arterial pressure when the heart rests between beats.</li>
             <li><strong>What it's used for:</strong> Assesses vascular resistance and resting arterial pressure; high or low DBP can signal circulatory issues.</li>
             <li><strong>Normal Range:</strong> 60–80 mmHg.</li>
             <li>Non-Survivors are more unstable with big fluctuations.</li>
             <li>Survivors maintain a higher DBP over time.</li>
             <li>Both groups are outside the normal range with little difference.</li>
         </ul>
-        `,
-    
-        "Solar8000/ART_MBP": `
+      `,
+      "Solar8000/ART_MBP": `
         <ul>
-            <li><strong>What it measures:</strong> Mean Arterial Pressure (MAP) is the average arterial pressure throughout one cardiac cycle.</li>
+          <li><strong>What it measures:</strong> Mean Arterial Pressure (MAP) is the average arterial pressure throughout one cardiac cycle.</li>
             <li><strong>What it's used for:</strong> Commonly used to ensure adequate organ perfusion; a MAP below ~65 mmHg is often considered inadequate.</li>
             <li><strong>Normal Range:</strong> 70–100 mmHg.</li>
             <li>Non-Survivors stay inside the normal range with a sharp decline then a rise.</li>
             <li>Survivors keep MAP in normal range initially then gradually decline.</li>
             <li>There is a noticeable difference between the groups.</li>
         </ul>
-        `,
-    
-        "Solar8000/ART_SBP": `
+      `,
+      "Solar8000/ART_SBP": `
         <ul>
-            <li><strong>What it measures:</strong> Systolic Blood Pressure (SBP) is the peak arterial pressure during heart contraction (systole).</li>
+          <li><strong>What it measures:</strong> Systolic Blood Pressure (SBP) is the peak arterial pressure during heart contraction (systole).</li>
             <li><strong>What it's used for:</strong> Evaluates how forcefully the heart pumps; helps identify hypertension or hypotension.</li>
             <li><strong>Normal Range:</strong> 90–120 mmHg.</li>
             <li>Non-Survivors appear unstable with fluctuations.</li>
             <li>Survivors show a more stable trend with gradual decline.</li>
         </ul>
-        `,
-    
-        "Solar8000/ETCO2": `
+      `,
+      "Solar8000/ETCO2": `
         <ul>
-            <li><strong>What it measures:</strong> End-Tidal CO<sub>2</sub> (ETCO<sub>2</sub>) is the partial pressure of CO<sub>2</sub> at the end of an exhaled breath.</li>
+          <li><strong>What it measures:</strong> End-Tidal CO<sub>2</sub> (ETCO<sub>2</sub>) is the partial pressure of CO<sub>2</sub> at the end of an exhaled breath.</li>
             <li><strong>What it's used for:</strong> Reflects ventilation and perfusion; used to monitor respiratory status, sedation levels, and confirm airway placement.</li>
             <li><strong>Normal Range:</strong> 35–45 mmHg.</li>
             <li>Both groups are outside the normal range.</li>
             <li>Non-Survivors’ ETCO<sub>2</sub> drops sharply.</li>
             <li>Survivors remain near normal until late in the timeline.</li>
         </ul>
-        `,
-    
-        "Solar8000/PLETH_SPO2": `
+      `,
+      "Solar8000/PLETH_SPO2": `
         <ul>
-            <li><strong>What it measures:</strong> Peripheral Oxygen Saturation (SpO<sub>2</sub>) indicates the percentage of hemoglobin binding sites occupied by oxygen.</li>
-            <li><strong>What it's used for:</strong> Monitors oxygenation levels; helps detect hypoxemia and assess respiratory function.</li>
-            <li><strong>Normal Range:</strong> 95–100%.</li>
-            <li>Non-Survivors are more unstable with a harder dropoff.</li>
-            <li>Survivors stay in the normal range longer with gradual decline.</li>
-            <li>There is a clear difference between the groups.</li>
+          <li><strong>What it measures:</strong> Peripheral Oxygen Saturation (SpO<sub>2</sub>) indicates the percentage of hemoglobin binding sites occupied by oxygen.</li>
+        <li><strong>What it's used for:</strong> Monitors oxygenation levels; helps detect hypoxemia and assess respiratory function.</li>
+        <li><strong>Normal Range:</strong> 95–100%.</li>
+        <li>Non-Survivors are more unstable with a harder dropoff.</li>
+        <li>Survivors stay in the normal range longer with gradual decline.</li>
+        <li>There is a clear difference between the groups.</li>
         </ul>
-        `
+      `
     };
-  
 
     d3.select("#takeaways-content").html(insightsByParameter[selectedParameter] || "");
     d3.select("#chart").html('<div class="loading">Loading data...</div>');

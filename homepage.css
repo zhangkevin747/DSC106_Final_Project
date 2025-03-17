@@ -13,6 +13,10 @@ html, body {
     overflow: hidden;
 }
 
+#home-page a {
+    color: #80b3e6;
+}
+
 /* Homepage Container - dark grey background with white text */
 #home-page {
     position: relative;

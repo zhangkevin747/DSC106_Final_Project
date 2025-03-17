@@ -214,6 +214,10 @@ html, body {
     
   }
   
+  #monitor-tab, #monitor-tab * {
+    font-family: 'LabelFont', sans-serif;
+  }
+
   #monitor-tab .tab-section.left {
     justify-content: flex-start;
   }

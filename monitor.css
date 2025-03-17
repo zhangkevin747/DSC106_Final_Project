@@ -213,10 +213,16 @@ html, body {
     text-align: center;
     
   }
-
   
   #monitor-tab .tab-section.left {
     justify-content: flex-start;
+  }
+
+  #monitor-tab .tab-section.left img {
+    height: 35px;
+    width: 35px;
+    padding-right: 10px;
+    object-fit: contain;
   }
   
   #monitor-tab .tab-section.right {

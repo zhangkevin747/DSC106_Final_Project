@@ -2,7 +2,7 @@
 const parameterTitles = {
   "HR": "Heart Rate",
   "ART_DBP": "Diastolic Blood Pressure",
-  "ART_MBP": "Mean Arterial Pressure",
+  "ART_MBP": "Mean Blood Pressure",
   "ART_SBP": "Systolic Blood Pressure",
   "ETCO2": "End-Tidal CO2",
   "PLETH_SPO2": "Oxygen Saturation"
@@ -83,11 +83,11 @@ function drawChart(selectedParameter) {
       `,
       "Solar8000/ART_MBP": `
         <ul>
-          <li><strong>Mean Arterial Pressure (MAP) is the average arterial pressure throughout one cardiac cycle.</li>
+          <li><strong>Mean Blood Pressure (MBP) is the average arterial pressure throughout one cardiac cycle.</li>
             <li><strong>Commonly used to ensure adequate organ perfusion; a MAP below ~65 mmHg is often considered inadequate.</li>
             <li><strong>Normal Range:</strong> 70–100 mmHg.</li>
             <li>Non-Survivors stay inside the normal range with a sharp decline then a rise.</li>
-            <li>Survivors keep MAP in normal range initially then gradually decline.</li>
+            <li>Survivors keep MBP in normal range initially then gradually decline.</li>
             <li>There is a noticeable difference between the groups.</li>
         </ul>
       `,

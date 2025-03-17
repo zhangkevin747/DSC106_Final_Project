@@ -99,14 +99,17 @@ d3.text("clinical_data.json").then(function(text) {
   });
   
 // ----------------- Dynamic Heartbeat Simulation -----------------
-const heartRateElement = document.getElementById('heart-rate');
+const heartRateValueElement = document.getElementById('heart-rate-value');
+const heartRateUnitElement = document.getElementById('heart-rate-unit');
 const heartIconElement = document.getElementById('heart-icon');
 const svgWave = d3.select("#wave-svg");
 svgWave.select("#dynamic-beat").remove();
 const baseline = 300;
 function beat() {
   const bpm = Math.floor(Math.random() * 21) + 60;
-  heartRateElement.textContent = bpm + " BPM";
+  // Update each element separately so the spans aren't overwritten
+  heartRateValueElement.textContent = bpm;
+  heartRateUnitElement.textContent = " BPM";
   heartIconElement.classList.add("heart-beat");
   setTimeout(() => {
     heartIconElement.classList.remove("heart-beat");

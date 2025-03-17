@@ -22,6 +22,7 @@ body {
     color: #fff; /* White text for heading */
     margin: 10px 0 5px;
     font-size: 1.6rem;
+    font-family: CustomHeaderFont;
 }
 
 .footnote {
@@ -194,5 +195,19 @@ body {
     object-fit: cover; /* if the image is smaller or bigger, cover might help fill */
     display: block;
 }
+
+@font-face {
+    font-family: 'CustomHeaderFont';
+    src: url('OCR-a___.ttf') format('truetype');
+  }
+
+@font-face {
+    font-family: 'DS-Digital';
+    src: url('DS-DIGII.TTF') format('truetype');
+  }
+
+
+
+
 
 

@@ -31,10 +31,15 @@ backButton.style.background = "#333";
 backButton.style.color = "#fff";
 backButton.style.border = "none";
 backButton.style.borderRadius = "4px";
+
+// Apply your custom font
+backButton.style.fontFamily = "'CustomHeaderFont', sans-serif";
+
 backButton.addEventListener("click", function() {
   window.location.href = "monitor.html";
 });
 document.body.appendChild(backButton);
+
 
 function drawChart(selectedParameter) {
     d3.select("#insights-panel").style("display", "none").style("opacity", 0);

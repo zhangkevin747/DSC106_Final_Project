@@ -148,4 +148,45 @@ html, body {
     color: white;
     border: 2px solid darkred;
   }
+
+  @font-face {
+    font-family: 'DS-Digital';
+    src: url('DS-DIGII.TTF') format('truetype');
+  }
+  
+  .readout-number {
+    font-family: 'DS-Digital', sans-serif;
+    font-size: 50px;
+  }
+
+  @font-face {
+    font-family: 'LabelFont';
+    src: url('OCR-a___.ttf') format('truetype');
+  }
+  
+  .readout-label {
+    font-family: 'LabelFont', sans-serif;
+    font-size: 25px;
+    color: #ccc;
+    margin-bottom: 5px;
+  }
+  
+  /* Apply DS-Digital to the BPM unit text */
+  .readout-unit {
+    font-family: 'LabelFont', sans-serif;
+    font-size: 20px;         /* Adjust to your preferred size */
+    color: rgb(255, 255, 255);             /* Matches the green color, change if desired */
+    vertical-align: super;   /* Keeps the BPM text raised */
+  }
+
+  #monitor-buttons {
+    font-family: 'LabelFont', sans-serif;
+  }
+
+  .tv-button {
+    font-family: 'LabelFont', sans-serif;
+  }
+  
+  
+  
   

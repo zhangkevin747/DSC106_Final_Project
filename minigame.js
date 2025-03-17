@@ -4,7 +4,9 @@
 let currentBpmRange = [60, 80]; // persists across rounds
 let isDead = false; // if the user scores 0 out of 3, set this to true
 
-const heartRateElement = document.getElementById('heart-rate');
+// Use separate elements for heart rate value and unit
+const heartRateValueElement = document.getElementById('heart-rate-value');
+const heartRateUnitElement = document.getElementById('heart-rate-unit');
 const heartIconElement = document.getElementById('heart-icon');
 const svgWave = d3.select("#wave-svg");
 
@@ -19,10 +21,14 @@ function beat() {
 
   const [minBpm, maxBpm] = currentBpmRange;
   const bpm = Math.floor(Math.random() * (maxBpm - minBpm + 1)) + minBpm;
-  heartRateElement.textContent = bpm + " BPM";
+  // Update separate elements so each part can have its own font
+  heartRateValueElement.textContent = bpm;
+  heartRateUnitElement.textContent = " BPM";
 
   heartIconElement.classList.add("heart-beat");
-  setTimeout(() => { heartIconElement.classList.remove("heart-beat"); }, 300);
+  setTimeout(() => { 
+    heartIconElement.classList.remove("heart-beat"); 
+  }, 300);
 
   // Adjust speed multiplier based on BPM range.
   let speedMultiplier = maxBpm <= 80 ? 1.5 : (maxBpm <= 125 ? 1.2 : 1.0);
@@ -112,7 +118,8 @@ function finalizeScore() {
   if (finalScore === 3) {
     heartIconElement.innerHTML = "✅";
     heartIconElement.classList.remove("heart-beat");
-    heartRateElement.textContent = "Perfect Score!";
+    heartRateValueElement.textContent = "Perfect Score!";
+    heartRateUnitElement.textContent = "";
   } else if (finalScore === 2) {
     heartIconElement.innerHTML = "❤️";
     heartIconElement.classList.remove("heart-beat");
@@ -124,7 +131,8 @@ function finalizeScore() {
   } else {
     // finalScore === 0
     isDead = true;
-    heartRateElement.textContent = "0 BPM";
+    heartRateValueElement.textContent = "0";
+    heartRateUnitElement.textContent = " BPM";
     heartIconElement.innerHTML = "💀";
     heartIconElement.classList.remove("heart-beat");
     // Stop the dynamic beat line

@@ -78,7 +78,7 @@ html, body {
     margin-bottom: 5px;
 }
 #heart-icon {
-    font-size: 2rem;
+    font-size: 3rem;
     color: #e74c3c;
 }
 
@@ -133,3 +133,38 @@ html, body {
     font-size: 0.8rem;
     margin-top: 10px;
 }
+
+@font-face {
+    font-family: 'CustomHeaderFont';
+    src: url('OCR-a___.ttf') format('truetype');
+  }
+
+  @font-face {
+    font-family: 'DS-Digital';
+    src: url('DS-DIGII.TTF') format('truetype');
+  }
+  
+  /* Apply the custom font to the header */
+  #home-page h1 {
+    font-family: 'CustomHeaderFont', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 2rem;
+    margin-bottom: 10px;
+  }
+
+  /* Remove or override the previous #heart-rate font-family if necessary */
+#heart-rate-value {
+    font-family: 'DS-Digital', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 3rem;
+  }
+  
+  #heart-rate-unit {
+    font-family: 'CustomHeaderFont', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 1.2rem; /* Adjust size as needed */
+  }
+
+  .fancy-button {
+    font-family: 'CustomHeaderFont', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 1.1rem;
+  }
+  
+  

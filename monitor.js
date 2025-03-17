@@ -223,7 +223,7 @@ d3.select(".tv-button.power-button").on("click", function() {
       .on("end", function() {
         // Show humorous shutdown message
         d3.select("#monitor-container")
-          .html("<div id='shutdown-message' style='text-align: center; color: #fff; font-size: 2em; padding-top: 20%;'>I'm not powering off... I'm just taking a power nap!</div>")
+          .html("<div id='shutdown-message' style='text-align: center; color: #fff; font-size: 2em; font-family: \"LabelFont\"; padding-top: 20%;'>I'm not powering off... I'm just taking a power nap!</div>")
           .style("background", "#000")
           .style("opacity", 1);
         
@@ -237,7 +237,7 @@ d3.select(".tv-button.power-button").on("click", function() {
             .on("end", function() {
               // Replace content with boot up screen
               d3.select("#monitor-container")
-                .html("<div id='bootup-screen' style='text-align: center; color: #0f0; font-size: 1.5em; padding-top: 20%;'>Booting up...<br/><span style='font-size: 1em;'>Loading system diagnostics...</span></div>")
+                .html("<div id='bootup-screen' style='text-align: center; color: #0f0; font-size: 1.5em; font-family: \"LabelFont\"; padding-top: 20%;'>Booting up...<br/><span style='font-size: 1em;'>Loading system diagnostics...</span></div>")
                 .style("opacity", 0)
                 .transition()
                 .duration(1000)

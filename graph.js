@@ -289,7 +289,7 @@ function drawChart(selectedParameter) {
         .style("stroke", "#e74c3c")
         .style("stroke-width", 2)
         .style("fill", "none")
-        .style("opacity", 0.8)
+        .style("opacity", 1)
         .attr("d", lineDeath);
 
       // Survived line
@@ -298,7 +298,7 @@ function drawChart(selectedParameter) {
         .style("stroke", "#2ecc71")
         .style("stroke-width", 2)
         .style("fill", "none")
-        .style("opacity", 0.8)
+        .style("opacity", 1)
         .attr("d", lineSurvived);
 
       // Animation Durations
@@ -333,7 +333,7 @@ function drawChart(selectedParameter) {
           .attr("x", x(deathTimeVal) + 10)
           .attr("y", margin.top + 20)
           .attr("fill", "#e74c3c")
-          .attr("font-size", "14px")
+          .attr("font-size", "15px")
           .attr("font-weight", "bold")
           .style("opacity", 0)
           .text("Time After Passing");
@@ -353,12 +353,12 @@ function drawChart(selectedParameter) {
           .attr("width", width - margin.left - margin.right)
           .attr("height", y(normalMin) - y(normalMax))
           .style("fill", "#1E90FF")
-          .style("opacity", 0.4); // More visible
+          .style("opacity", 0.2); // More visible
         svg.append("text")
           .attr("x", width - margin.right - 120)
           .attr("y", y(normalMax) - 5)
           .attr("fill", "#1E90FF")
-          .attr("font-size", "12px")
+          .attr("font-size", "15px")
           .attr("font-weight", "bold")
           .text("Normal Range");
       }
@@ -444,7 +444,9 @@ function drawChart(selectedParameter) {
       d3.select("#chart").append("div")
           .attr("id", "chart-legend")
           .style("text-align", "center")
-          .style("margin-top", "10px")
+          .style("margin-top", "0px")
+          .style("font-family", "'CustomHeaderFont', sans-serif")
+          .style("font-size", "18px")
           .html(`
             <span style="display:inline-block; margin-right: 20px;">
               <span style="background:#e74c3c; width:15px; height:15px; display:inline-block; opacity:0.8; margin-right:5px;"></span>

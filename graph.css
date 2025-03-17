@@ -77,13 +77,14 @@ body {
     font-size: 1.5rem;
     font-family: "CustomHeaderFont";
     margin-top: 0;
+    margin-bottom: 0; 
     color: #fff;
 }
 
 #insights-panel ul {
     list-style-type: disc;
     padding-left: 20px;
-    margin: 10px 0;
+    margin: 0;
     color: #fff;
 }
 
@@ -120,10 +121,11 @@ body {
 }
 
 .chart-title {
-    font-size: 16px;
+    font-size: 20px;
     font-weight: bold;
     text-anchor: middle;
     fill: #fff; /* White chart title */
+    font-family: "CustomHeaderFont";
 }
 
 .loading {
@@ -176,8 +178,9 @@ body {
 
 /* The top text container remains its natural size */
 #takeaways-content {
+    font-family: 'CustomHeaderFont', sans-serif;
     flex: 0 0 auto;
-    margin: 10px;
+    margin: 0;
 }
 
 /* The GIF container grows to fill leftover vertical space */
@@ -206,6 +209,8 @@ body {
     font-family: 'DS-Digital';
     src: url('DS-DIGII.TTF') format('truetype');
   }
+
+  
 
 
 

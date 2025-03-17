@@ -5,12 +5,12 @@ document.addEventListener("DOMContentLoaded", function() {
   
     // Define your vital signs with key, label, color, and unit.
     const vitals = [
-      { key: "Solar8000/HR",         label: "HR",    color: "#0f0",    unit: "bpm" },
-      { key: "Solar8000/ART_SBP",      label: "SBP",   color: "#f00",    unit: "mmHg" },
-      { key: "Solar8000/ART_MBP",      label: "MBP",   color: "#ffa500", unit: "mmHg" },
-      { key: "Solar8000/ART_DBP",      label: "DBP",   color: "#ff0",    unit: "mmHg" },
-      { key: "Solar8000/ETCO2",        label: "ETCO2", color: "#0ff",    unit: "mmHg" },
-      { key: "Solar8000/PLETH_SPO2",   label: "SpO2",  color: "#f0f",    unit: "%" }
+      { key: "Solar8000/HR",         label: "Heart Rate",    color: "#0f0",    unit: "bpm" },
+      { key: "Solar8000/ART_SBP",      label: "Systolic Blood Pressure",   color: "#f00",    unit: "mmHg" },
+      { key: "Solar8000/ART_MBP",      label: "Mean Blood Pressure",   color: "#ffa500", unit: "mmHg" },
+      { key: "Solar8000/ART_DBP",      label: "Diastolic Blood Pressure",   color: "#ff0",    unit: "mmHg" },
+      { key: "Solar8000/ETCO2",        label: "End-Tidal Carbon Dioxide", color: "#0ff",    unit: "mmHg" },
+      { key: "Solar8000/PLETH_SPO2",   label: "Oxygen Saturation",  color: "#f0f",    unit: "%" }
     ];
   
     // Scrolling speed in pixels per second
@@ -213,43 +213,71 @@ document.addEventListener("DOMContentLoaded", function() {
         .style("margin-top", "20px")
         .text("Failed to load vital_signs_data.json");
     });
+    
         // --- Easter Egg for the power button with shutdown and boot up animations ---
+// --- Easter Egg for the power button with shutdown and boot up animations ---
 d3.select(".tv-button.power-button").on("click", function() {
-    // Fade out the vital signs display (simulate shutdown)
-    d3.select("#monitor-container")
+  // Fade out both the vital signs display and the monitor tab (simulate shutdown)
+  d3.selectAll("#monitor-container, #monitor-tab")
+    .transition()
+    .duration(1000)
+    .style("opacity", 0)
+    .on("end", function() {
+      // Ensure this is applied only once
+      if (d3.select(this).attr("data-state") !== "shutdown") {
+        d3.select(this).attr("data-state", "shutdown");
+        
+        // Change background and add shutdown message inside the existing elements
+        d3.select(this)
+          .style("background", "#000")
+          .html("<div id='shutdown-message' style='text-align: center; color: #fff; font-size: 2em; font-family: \"LabelFont\"; padding-top: 20%;'>I'm not powering off... I'm just taking a power nap!</div>")
+          .style("opacity", 1);
+      }
+    });
+
+  // Wait 3 seconds before transitioning to the boot-up screen
+  setTimeout(function() {
+    d3.selectAll("#monitor-container, #monitor-tab")
       .transition()
-      .duration(1000)
+      .duration(500)
       .style("opacity", 0)
       .on("end", function() {
-        // Show humorous shutdown message
-        d3.select("#monitor-container")
-          .html("<div id='shutdown-message' style='text-align: center; color: #fff; font-size: 2em; font-family: \"LabelFont\"; padding-top: 20%;'>I'm not powering off... I'm just taking a power nap!</div>")
-          .style("background", "#000")
+        // Replace content with boot-up screen but retain structural elements
+        d3.select(this)
+          .style("background", "#000")  // Ensure background remains consistent
+          .html("<div id='bootup-screen' style='text-align: center; color: #0f0; font-size: 1.5em; font-family: \"LabelFont\"; padding-top: 20%;'>Booting up...<br/><span style='font-size: 1em;'>Loading system diagnostics...</span></div>")
+          .style("opacity", 0)
+          .transition()
+          .duration(1000)
           .style("opacity", 1);
-        
-        // Wait 3 seconds before transitioning to the boot up screen
-        setTimeout(function() {
-          // Fade out the shutdown message
-          d3.select("#monitor-container")
-            .transition()
-            .duration(500)
-            .style("opacity", 0)
-            .on("end", function() {
-              // Replace content with boot up screen
-              d3.select("#monitor-container")
-                .html("<div id='bootup-screen' style='text-align: center; color: #0f0; font-size: 1.5em; font-family: \"LabelFont\"; padding-top: 20%;'>Booting up...<br/><span style='font-size: 1em;'>Loading system diagnostics...</span></div>")
-                .style("opacity", 0)
-                .transition()
-                .duration(1000)
-                .style("opacity", 1);
-              
-              // After a short delay, reload the page to simulate powering back on
-              setTimeout(function() {
-                location.reload();
-              }, 2000);
-            });
-        }, 3000);
       });
-  });
+
+    // After a short delay, reload the page to simulate powering back on
+    setTimeout(function() {
+      location.reload();
+    }, 2000);
+  }, 3000);
 });
-  
+
+// Display current date and time in YYYY-MM-DD HH:MM:SS format
+function updateDateTime() {
+  const now = new Date();
+
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  const hours = String(now.getHours()).padStart(2, "0");
+  const minutes = String(now.getMinutes()).padStart(2, "0");
+  const seconds = String(now.getSeconds()).padStart(2, "0");
+
+  const formatted = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  document.getElementById("date-display").textContent = formatted;
+}
+
+// Update time every second
+updateDateTime(); // initial call
+setInterval(updateDateTime, 1000);
+
+
+});
+

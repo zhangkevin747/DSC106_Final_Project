@@ -1,4 +1,13 @@
 // graph.js - Graphs Page JavaScript
+const parameterTitles = {
+  "HR": "Heart Rate",
+  "ART_DBP": "Diastolic Blood Pressure",
+  "ART_MBP": "Mean Arterial Pressure",
+  "ART_SBP": "Systolic Blood Pressure",
+  "ETCO2": "End-Tidal CO2",
+  "PLETH_SPO2": "Oxygen Saturation"
+};
+
 
 // --- On DOMContentLoaded, remove the "Choose a Vital Sign" controls section ---
 document.addEventListener("DOMContentLoaded", function() {
@@ -199,12 +208,24 @@ function drawChart(selectedParameter) {
           .attr("stroke-opacity", 0.7)
         );
 
+      // Extract readable name or default to the original name
+      const parameterShortName = selectedParameter.split('/').pop();
+      const displayTitle = parameterTitles[parameterShortName] || parameterShortName;
+
+      // Remove any existing chart title before adding a new one
+      svg.selectAll(".chart-title").remove();
+
       // Chart Title
       svg.append("text")
-        .attr("class", "chart-title")
-        .attr("x", width / 2)
-        .attr("y", margin.top / 2)
-        .text(`${parameterName} Over Time`);
+          .attr("class", "chart-title")
+          .attr("x", width / 2)
+          .attr("y", margin.top / 2)
+          .attr("text-anchor", "middle")
+          .attr("fill", "#fff") // Ensure visibility
+          .attr("font-size", "18px")
+          .attr("font-weight", "bold")
+          .text(`${displayTitle} Over Time`);
+
 
       // X Axis (white ticks)
       svg.append("g")

@@ -166,7 +166,7 @@ html, body {
   
   .readout-label {
     font-family: 'LabelFont', sans-serif;
-    font-size: 25px;
+    font-size: 15px;
     color: #ccc;
     margin-bottom: 5px;
   }
@@ -187,6 +187,45 @@ html, body {
     font-family: 'LabelFont', sans-serif;
   }
   
+  #monitor-tab {
+    background-color: #007BFF;
+    height: 50px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: white;
+    padding: 0 20px;
+    font-family: sans-serif;
+    font-size: 16px;
+    box-sizing: border-box;
+  }
   
+  #monitor-tab .tab-section {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
   
+  .tab-section {
+    flex: 1;
+    text-align: center;
+    
+  }
+
+  
+  #monitor-tab .tab-section.left {
+    justify-content: flex-start;
+  }
+  
+  #monitor-tab .tab-section.right {
+    justify-content: flex-end;
+  }
+  
+  #monitor-tab .tab-section.right img {
+    height: 40px;
+    width: 40px;
+    object-fit: contain;
+  }
   

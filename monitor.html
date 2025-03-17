@@ -2,12 +2,19 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Smooth Scrolling Vital Signs Monitor (Non-Survivor, with TV Style)</title>
+  <title>Vital Signs Monitor</title>
   <link rel="stylesheet" href="monitor.css">
   <script src="https://d3js.org/d3.v5.min.js"></script>
 </head>
 <body>
   <div id="monitor-wrapper">
+    <div id="monitor-tab">
+      <div class="tab-section left">Patient 1</div>
+      <div class="tab-section center" id="date-display"></div>
+      <div class="tab-section right">
+        <img src="/battery.png">
+      </div>
+    </div>
     <div id="monitor-container"></div>
     <div id="monitor-buttons">
       <button class="tv-button power-button">Power</button>
